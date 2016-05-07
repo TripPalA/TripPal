@@ -14,3 +14,6 @@ Friday, May 27
 
 Friday, June 3
 * Presentation Due?
+
+##Wireframe Model
+![wireframe](https://github.com/TripPalA/TripPal/blob/master/wireframe.jpg)
