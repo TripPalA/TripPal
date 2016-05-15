@@ -85,22 +85,22 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_first_layout) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new FirstFragment())
+                            , new NewTripFragment())
                     .commit();
         } else if (id == R.id.nav_second_layout) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new SecondFragment())
+                            , new SavedTripFragment())
                     .commit();
         } else if (id == R.id.nav_third_layout) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new ThirdFragment())
+                            , new SavedPOIFragment())
                     .commit();
         } else if (id == R.id.nav_fourth_layout) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new FourthFragment())
+                            , new PrefFragment())
                     .commit();
         } else if (id == R.id.nav_share) {
 
