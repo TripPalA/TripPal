@@ -1,7 +1,5 @@
 package com.trippal.trippal;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -50,7 +48,7 @@ public class PlaceAutoComplete extends Fragment {
         });
 
 
-        return inflater.inflate(R.layout.fragment_place_auto_complete, container, false);
+        return inflater.inflate(R.layout.new_trip_layout, container, false);
     }
 
 }
