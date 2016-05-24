@@ -15,6 +15,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
  * Created by layla on 5/22/2016.
  */
 public class GmapFragment extends Fragment implements OnMapReadyCallback {
+
+
+//    GoogleMap mMap;
+//    private static final int ERROR_DIALOG_REQUEST = 9001;
+//    private static final double
+//    CSULA_LAT = 34.065207,
+//    CSULA_LNG = -118.170125;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
