@@ -17,11 +17,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 public class GmapFragment extends Fragment implements OnMapReadyCallback {
 
 
-//    GoogleMap mMap;
-//    private static final int ERROR_DIALOG_REQUEST = 9001;
-//    private static final double
-//    CSULA_LAT = 34.065207,
-//    CSULA_LNG = -118.170125;
+    GoogleMap mMap;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    private static final double
+    CSULA_LAT = 34.065207,
+    CSULA_LNG = -118.170125;
 
     @Nullable
     @Override
