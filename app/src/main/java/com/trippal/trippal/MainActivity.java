@@ -1,5 +1,6 @@
 package com.trippal.trippal;
 
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,9 +14,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -24,6 +30,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +127,26 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    // checks if map service is connected
+    public boolean servicesOK() {
+
+        int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if (isAvailable == ConnectionResult.SUCCESS) {
+            return true;
+        } else if (GooglePlayServicesUtil.isUserRecoverableError(isAvailable)) {
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(isAvailable, this, ERROR_DIALOG_REQUEST);
+            dialog.show();
+        } else {
+            Toast.makeText(this, "Can't connect to mapping service", Toast.LENGTH_SHORT);
+        }
+
+        return false;
+    }
+
+    // geo location
     public void geoLocate(View v)throws IOException {
+        hideSoftKeyboard(v);
 
         TextView tv = (TextView) findViewById(R.id.map_editText_location);
         String searchString = tv.getText().toString();
@@ -139,7 +166,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void gotoLocation(double lat, double lng, int i) {
+    // hides softkey
+    private void hideSoftKeyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    // moves the camera location
+    private void gotoLocation(double lat, double lng, int zoom) {
         LatLng latLng = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
     }
 }
