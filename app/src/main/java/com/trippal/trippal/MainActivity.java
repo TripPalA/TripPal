@@ -22,16 +22,19 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private static final int ERROR_DIALOG_REQUEST = 9001;
-    
+    GoogleMap mMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,6 +147,20 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+//    MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.map);
+//    fragment.getMapAsync(this);
+
+    // initiates google map
+    private boolean initMap() {
+
+        if (mMap == null) {
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            mMap = mapFragment.getMap();
+            mapFragment.getMapAsync(this);
+        }
+        return (mMap != null);
+    }
+
     // geo location
     public void geoLocate(View v)throws IOException {
         hideSoftKeyboard(v);
@@ -176,5 +193,10 @@ public class MainActivity extends AppCompatActivity
     private void gotoLocation(double lat, double lng, int zoom) {
         LatLng latLng = new LatLng(lat, lng);
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
     }
 }

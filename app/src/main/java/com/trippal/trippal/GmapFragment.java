@@ -7,14 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-
 /**
  * Created by layla on 5/22/2016.
  */
-public class GmapFragment extends Fragment implements OnMapReadyCallback {
+public class GmapFragment extends Fragment {
 
     @Nullable
     @Override
@@ -26,12 +22,8 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.map);
-        fragment.getMapAsync(this);
+//        MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.map);
+//        fragment.getMapAsync(this);
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-    }
 }
