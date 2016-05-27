@@ -1,6 +1,8 @@
 package com.trippal.trippal;
 
 import android.app.FragmentManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -10,6 +12,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -107,5 +117,29 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void geoLocate(View v)throws IOException {
+
+        TextView tv = (TextView) findViewById(R.id.map_editText_location);
+        String searchString = tv.getText().toString();
+
+        Geocoder gc = new Geocoder(this);
+
+        List<Address> list = gc.getFromLocationName(searchString, 1);
+
+        if (list.size() > 0){
+            Address address = list.get(0);
+            String locality = address.getLocality();
+            Toast.makeText(this, "Found: " + locality, Toast.LENGTH_SHORT).show();
+
+            double lat = address.getLatitude();
+            double lng = address.getLongitude();
+            gotoLocation(lat, lng, 15);
+        }
+    }
+
+    private void gotoLocation(double lat, double lng, int i) {
+        LatLng latLng = new LatLng(lat, lng);
     }
 }
