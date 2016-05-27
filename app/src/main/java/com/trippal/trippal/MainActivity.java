@@ -24,7 +24,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -145,20 +144,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         return false;
-    }
-
-//    MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.map);
-//    fragment.getMapAsync(this);
-
-    // initiates google map
-    private boolean initMap() {
-
-        if (mMap == null) {
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-            mMap = mapFragment.getMap();
-            mapFragment.getMapAsync(this);
-        }
-        return (mMap != null);
     }
 
     // geo location
