@@ -2,6 +2,7 @@ package com.trippal.trippal;
 
 import android.app.Dialog;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -114,10 +116,11 @@ public class MainActivity extends AppCompatActivity
                             , new SavedPOIFragment())
                     .commit();
         } else if (id == R.id.nav_fourth_layout) {
-            fragmentManager.beginTransaction()
+            /*fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
                             , new PrefFragment())
-                    .commit();
+                    .commit();*/
+            startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {

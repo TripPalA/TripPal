@@ -8,4 +8,70 @@
     <string name="lets_go">AND GO!</string>
     <string name="map_button_search">Search</string>
     <string name="map_textView_location">Location:</string>
+
+    <!--preferences-->
+    <string name="pref_units_default" translatable="false">Metric</string>
+    <string name="pref_units_key" translatable="false">units</string>
+    <string name="pref_units_label">Units</string>
+
+    <string-array name="units_array">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
+
+    <string name="pref_units_imperial">imperial</string>
+    <string name="pref_units_metric">metric</string>
+
+    <!--radius pref-->
+    <string name="pref_radius_default">1.0</string>
+    <string name="pref_radius_label">Radius</string>
+    <string name="pref_radius_key">radius</string>
+
+    <string-array name="radius_array">
+        <item>.25</item>
+        <item>.50</item>
+        <item>.75</item>
+        <item>1.0</item>
+        <item>2.0</item>
+        <item>3.0</item>
+    </string-array>
+
+    <string name="pref_interval_label">Time Interval (Minutes)</string>
+    <string name="pref_interval_default">1</string>
+    <string name="pref_interval_key">interval </string>
+    <string-array name="interval_array">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+    </string-array>
+
+    <!--Filters-->
+    <string name="pref_filter_label">Filters</string>
+    <string name="pref_category_label">Categories</string>
+    <string name="pref_category_key">category</string>
+    <array name="category_array">
+        <item>Restaurants</item>
+        <item>Landmarks</item>
+        <item>Museums</item>
+        <item>Parks</item>
+        <item>Casino</item>
+        <item>Church</item>
+        <item>Hotels</item>
+        <item>Art Gallery</item>
+    </array>
+    <string name="pref_rating_label">Ratings/Reviews</string>
+    <string name="pref_rating_key">rating</string>
+    <string name="pref_rating_default">Show All</string>
+    <string-array name="rating_array">
+        <item>5 stars</item>
+        <item>4 stars</item>
+        <item>3 stars</item>
+        <item>2 stars</item>
+        <item>1 star</item>
+        <item>0 star</item>
+    </string-array>
 </resources>
