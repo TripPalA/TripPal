@@ -29,6 +29,8 @@ public class SavedPOIFragment extends Fragment {
 
     View myView;
 
+    ArrayAdapter adapter;
+    ListView listView;
 
     MyPlace myPlaces;
     private static final String LOG_TAG = SavedPOIFragment.class.getSimpleName();
@@ -38,6 +40,7 @@ public class SavedPOIFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myPlaces = new MyPlace(getActivity());
+        //  myPlaces.savePlace(null);
 
     }
 
@@ -47,20 +50,30 @@ public class SavedPOIFragment extends Fragment {
 
         myView = inflater.inflate(R.layout.saved_poi_layout, container, false);
 
-        ListView listView = (ListView) myView.findViewById(R.id.savedPlacesListView);
-        ArrayAdapter adapter =
-                new ArrayAdapter<String>(getActivity(), R.layout.list_item, R.id.item_text, new ArrayList<String>());
+        listView = (ListView) myView.findViewById(R.id.savedPlacesListView);
+        adapter =
+                new ArrayAdapter<MyPlace.SavedPlace>(getActivity(), R.layout.list_item, R.id.item_text, new ArrayList<MyPlace.SavedPlace>());
         List<MyPlace.SavedPlace> placeList = myPlaces.getPlaces();
 
         for (MyPlace.SavedPlace place : placeList) {
-            adapter.add(place.getName() + "\n" + place.getAddress());
+            adapter.add(place);
         }
         listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+
+                final MyPlace.SavedPlace place = (MyPlace.SavedPlace) listView.getItemAtPosition(position);
+                Toast.makeText(getActivity(), place.getGoogleId().toString(), Toast.LENGTH_LONG).show();
+            }
+        });
         /*listView.setOnClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String placeName = adapter.getItem(position).toString();
+                String placeName = listView.getItem(position).toString();
                 Toast.makeText(getActivity(), placeName, Toast.LENGTH_LONG).show();
             }
 

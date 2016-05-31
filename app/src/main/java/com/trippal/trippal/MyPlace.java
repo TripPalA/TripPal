@@ -58,36 +58,33 @@ public class MyPlace {
     }
 
     public void savePlace(Place place) {
-        boolean testing = true;
-
 
         TripDbHelper dbHelper = new TripDbHelper(this.mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 
         ContentValues placeValue = new ContentValues();
-        if (testing) {
-            placeValue.put(TripContract.PlaceEntry.COLUMN_PLACE_NAME, place.getName().toString());
-            placeValue.put(TripContract.PlaceEntry.COLUMN_PLACE_ADDRESS, place.getAddress().toString());
-            placeValue.put(TripContract.PlaceEntry.COLUMN_GOOGLE_PLACE_ID, place.getId());
-            placeValue.put(TripContract.PlaceEntry.COLUMN_COORD_LAT, place.getLatLng().toString());
-            //placeValue.put(TripContract.PlaceEntry.COLUMN_COORD_LONG, ");
-            placeValue.put(TripContract.PlaceEntry.COLUMN_DATE, System.currentTimeMillis());
-            long locationRowId;
-            locationRowId = db.insert(TripContract.PlaceEntry.TABLE_NAME, null, placeValue);
-            if (locationRowId < 0) {
-                Log.e("SAVE PLACE: ", "could not add place into db.");
-            } else {
-                Log.i("SAVE PLACE: ", "inserted in row id " + locationRowId);
-            }
+        placeValue.put(TripContract.PlaceEntry.COLUMN_PLACE_NAME, place.getName().toString());
+        placeValue.put(TripContract.PlaceEntry.COLUMN_PLACE_ADDRESS, place.getAddress().toString());
+        placeValue.put(TripContract.PlaceEntry.COLUMN_GOOGLE_PLACE_ID, place.getId());
+        placeValue.put(TripContract.PlaceEntry.COLUMN_COORD_LAT, place.getLatLng().toString());
+        //placeValue.put(TripContract.PlaceEntry.COLUMN_COORD_LONG, ");
+        placeValue.put(TripContract.PlaceEntry.COLUMN_DATE, System.currentTimeMillis());
+        long locationRowId;
+        locationRowId = db.insert(TripContract.PlaceEntry.TABLE_NAME, null, placeValue);
+        if (locationRowId < 0) {
+            Log.e("SAVE PLACE: ", "could not add place into db.");
+        } else {
+            Log.i("SAVE PLACE: ", "inserted in row id " + locationRowId);
         }
+
         db.close();
 
     }
 
     class SavedPlace {
-        private String name, address;
-        private Long googleId, date;
+        private String name, address, googleId;
+        private Long date;
 
         public String getName() {
             return this.name;
@@ -105,11 +102,11 @@ public class MyPlace {
             return this.address;
         }
 
-        public void setGoogleId(Long id) {
+        public void setGoogleId(String id) {
             this.googleId = id;
         }
 
-        public Long getGoogleId() {
+        public String getGoogleId() {
             return this.googleId;
         }
 
@@ -142,7 +139,7 @@ public class MyPlace {
             SavedPlace entry = new SavedPlace();
             entry.setName(c.getString(colName));
             entry.setAddress(c.getString(colAddress));
-            entry.setGoogleId(c.getLong(colGoogleId));
+            entry.setGoogleId(c.getString(colGoogleId));
             entry.setDate(c.getLong(colDate));
             list.add(entry);
 
