@@ -31,7 +31,11 @@ public class MyPlace {
 
 
         if (c.getCount() < 0) {
+            //create table if does not exist
             dbHelper.onCreate(db);
+        }
+        if (c.getCount() == 0) {
+            //set sample value if table is empty
             ContentValues placeValue = new ContentValues();
             placeValue.put(TripContract.PlaceEntry.COLUMN_PLACE_NAME, "Cal State LA");
             placeValue.put(TripContract.PlaceEntry.COLUMN_PLACE_ADDRESS, "5151 State University Dr., Los Angeles, CA 90032");
