@@ -1,17 +1,16 @@
 package com.trippal.trippal;
 
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,8 +20,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -31,7 +28,7 @@ import java.util.List;
 /**
  * Created by layla on 5/22/2016.
  */
-public class GmapFragment extends Fragment {
+public class GmapFragment extends Fragment implements View.OnClickListener {
 
     private static final int ERROR_DIALOG_REQUEST = 9001;
     GoogleMap mMap;
@@ -42,7 +39,6 @@ public class GmapFragment extends Fragment {
             LASVEGAS_LAT = 36.126750,
             LASVEGAS_LNG = -115.165718;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = null;
@@ -51,7 +47,9 @@ public class GmapFragment extends Fragment {
             view = inflater.inflate(R.layout.fragment_maps, container, false);
             if (initMap()){
                 Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
-                gotoLocation(CSULA_LAT, CSULA_LNG, 13);
+                gotoLocation(CSULA_LAT, CSULA_LNG, 15);
+                Button search_button = (Button) view.findViewById(R.id.button_search);
+                search_button.setOnClickListener(this);
             }else{
                 Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
             }
@@ -99,34 +97,34 @@ public class GmapFragment extends Fragment {
     }
 
 
-    // geo location
-//    public void geoLocate(View v)throws IOException {
-////        hideSoftKeyboard(v);
-//
-//        TextView tv = (TextView) getActivity().findViewById(R.id.map_editText_location);
-//        String searchString = tv.getText().toString();
-//
-//        Geocoder gc = new Geocoder(this);
-//
-//        List<Address> list = gc.getFromLocationName(searchString, 1);
-//
-//        if (list.size() > 0){
-//            Address address = list.get(0);
-//            String locality = address.getLocality();
-//            Toast.makeText(this, "Found: " + locality, Toast.LENGTH_SHORT).show();
-//
-//            double lat = address.getLatitude();
-//            double lng = address.getLongitude();
-//            gotoLocation(lat, lng, 15);
-//        }
-//    }
-//
-//    // hides softkey
-//    private void hideSoftKeyboard(View v) {
-//        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-//    }
-//
+//     geo location
+    public void geoLocate(View v)throws IOException {
+        hideSoftKeyboard(v);
+
+        TextView tv = (TextView) getActivity().findViewById(R.id.map_editText_location);
+        String searchString = tv.getText().toString();
+
+        Geocoder gc = new Geocoder(getActivity());
+
+        List<Address> list = gc.getFromLocationName(searchString, 1);
+
+        if (list.size() > 0){
+            Address address = list.get(0);
+            String locality = address.getLocality();
+            Toast.makeText(getActivity(), "Found: " + locality, Toast.LENGTH_SHORT).show();
+
+            double lat = address.getLatitude();
+            double lng = address.getLongitude();
+            gotoLocation(lat, lng, 15);
+        }
+    }
+
+    // hides softkey
+    private void hideSoftKeyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
     // moves the camera location
     private void gotoLocation(double lat, double lng, int zoom) {
         LatLng latLng = new LatLng(lat, lng);
@@ -134,4 +132,15 @@ public class GmapFragment extends Fragment {
         mMap.moveCamera(update);
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.button_search:
+                try {
+                    geoLocate(view);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+    }
 }
