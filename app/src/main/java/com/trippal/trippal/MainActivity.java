@@ -24,17 +24,17 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int ERROR_DIALOG_REQUEST = 9001;
-    GoogleMap mMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.content_frame
-                        , new GmapFragment())
+                .add(R.id.content_frame, new GmapFragment())
                 .commit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -132,59 +131,4 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    // checks if map service is connected
-    public boolean servicesOK() {
-
-        int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-
-        if (isAvailable == ConnectionResult.SUCCESS) {
-            return true;
-        } else if (GooglePlayServicesUtil.isUserRecoverableError(isAvailable)) {
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(isAvailable, this, ERROR_DIALOG_REQUEST);
-            dialog.show();
-        } else {
-            Toast.makeText(this, "Can't connect to mapping service", Toast.LENGTH_SHORT);
-        }
-
-        return false;
-    }
-
-    // geo location
-    public void geoLocate(View v)throws IOException {
-        hideSoftKeyboard(v);
-
-        TextView tv = (TextView) findViewById(R.id.map_editText_location);
-        String searchString = tv.getText().toString();
-
-        Geocoder gc = new Geocoder(this);
-
-        List<Address> list = gc.getFromLocationName(searchString, 1);
-
-        if (list.size() > 0){
-            Address address = list.get(0);
-            String locality = address.getLocality();
-            Toast.makeText(this, "Found: " + locality, Toast.LENGTH_SHORT).show();
-
-            double lat = address.getLatitude();
-            double lng = address.getLongitude();
-            gotoLocation(lat, lng, 15);
-        }
-    }
-
-    // hides softkey
-    private void hideSoftKeyboard(View v) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-    }
-
-    // moves the camera location
-    private void gotoLocation(double lat, double lng, int zoom) {
-        LatLng latLng = new LatLng(lat, lng);
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-    }
 }
