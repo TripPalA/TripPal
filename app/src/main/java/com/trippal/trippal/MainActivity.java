@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int ERROR_DIALOG_REQUEST = 9001;
     GoogleMap mMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +43,7 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.content_frame
-                        , new GmapFragment())
+                .replace(R.id.content_frame, new GmapFragment())
                 .commit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
