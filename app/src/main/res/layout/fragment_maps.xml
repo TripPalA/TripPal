@@ -43,7 +43,9 @@
         android:id="@+id/map"
         class="com.google.android.gms.maps.MapFragment"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+
+        />
 
 
 </LinearLayout>

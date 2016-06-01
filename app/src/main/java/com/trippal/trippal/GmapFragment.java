@@ -42,8 +42,15 @@ public class GmapFragment extends Fragment {
         View view = null;
 
         if (servicesOK()){
-            Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
+
             view = inflater.inflate(R.layout.fragment_maps, container, false);
+
+            if (initMap()){
+                Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
+            }
+
         }else{
             view = inflater.inflate(R.layout.content_main, container, false);
         }
@@ -77,11 +84,15 @@ public class GmapFragment extends Fragment {
         return false;
     }
 
-    private boolean initMap(){
-        if (mMap == null){
 
+    private boolean initMap() {
+        if (mMap == null) {
+            MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+            mMap = mapFragment.getMap();
         }
+        return (mMap != null);
     }
+
 
 //
 //    // geo location
