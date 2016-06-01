@@ -36,17 +36,22 @@ public class GmapFragment extends Fragment {
     private static final int ERROR_DIALOG_REQUEST = 9001;
     GoogleMap mMap;
 
+    private static final double
+            CSULA_LAT = 34.065207,
+            CSULA_LNG = -118.170125,
+            LASVEGAS_LAT = 36.126750,
+            LASVEGAS_LNG = -115.165718;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = null;
 
         if (servicesOK()){
-
             view = inflater.inflate(R.layout.fragment_maps, container, false);
-
             if (initMap()){
                 Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
+                gotoLocation(CSULA_LAT, CSULA_LNG, 13);
             }else{
                 Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
             }
@@ -94,12 +99,11 @@ public class GmapFragment extends Fragment {
     }
 
 
-//
-//    // geo location
+    // geo location
 //    public void geoLocate(View v)throws IOException {
-//        hideSoftKeyboard(v);
+////        hideSoftKeyboard(v);
 //
-//        TextView tv = (TextView) findViewById(R.id.map_editText_location);
+//        TextView tv = (TextView) getActivity().findViewById(R.id.map_editText_location);
 //        String searchString = tv.getText().toString();
 //
 //        Geocoder gc = new Geocoder(this);
@@ -123,10 +127,11 @@ public class GmapFragment extends Fragment {
 //        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 //    }
 //
-//    // moves the camera location
-//    private void gotoLocation(double lat, double lng, int zoom) {
-//        LatLng latLng = new LatLng(lat, lng);
-//        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
-//    }
+    // moves the camera location
+    private void gotoLocation(double lat, double lng, int zoom) {
+        LatLng latLng = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        mMap.moveCamera(update);
+    }
 
 }
