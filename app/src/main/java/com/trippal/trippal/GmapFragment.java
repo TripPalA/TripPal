@@ -6,6 +6,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -28,7 +30,9 @@ import java.util.List;
 /**
  * Created by layla on 5/22/2016.
  */
-public class GmapFragment extends Fragment implements View.OnClickListener {
+public class GmapFragment extends Fragment implements View.OnClickListener, OnMapReadyCallback {
+
+    private final String LOG_TAG = this.getClass().getSimpleName();
 
     private static final int ERROR_DIALOG_REQUEST = 9001;
     GoogleMap mMap;
@@ -43,18 +47,18 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = null;
 
-        if (servicesOK()){
+        if (servicesOK()) {
             view = inflater.inflate(R.layout.fragment_maps, container, false);
-            if (initMap()){
-                Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
-                gotoLocation(CSULA_LAT, CSULA_LNG, 15);
-                Button search_button = (Button) view.findViewById(R.id.map_search_button);
-                search_button.setOnClickListener(this);
-            }else{
-                Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
-            }
+            Log.i(LOG_TAG, "Service Ok");
+            initMap();
 
-        }else{
+            Button search_button = (Button) view.findViewById(R.id.map_search_button);
+            search_button.setOnClickListener(this);
+
+//                Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
+
+
+        } else {
             view = inflater.inflate(R.layout.content_main, container, false);
         }
 
@@ -88,17 +92,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    private boolean initMap() {
-        if (mMap == null) {
-            MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            mMap = mapFragment.getMap();
-        }
-        return (mMap != null);
+    private void initMap() {
+        MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
 
-//     geo location
-    public void geoLocate(View v)throws IOException {
+    //     geo location
+    public void geoLocate(View v) throws IOException {
         hideSoftKeyboard(v);
 
         TextView tv = (TextView) getActivity().findViewById(R.id.map_location_editText);
@@ -108,7 +109,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
 
         List<Address> list = gc.getFromLocationName(searchString, 1);
 
-        if (list.size() > 0){
+        if (list.size() > 0) {
             Address address = list.get(0);
             String locality = address.getLocality();
             Toast.makeText(getActivity(), "Found: " + locality, Toast.LENGTH_SHORT).show();
@@ -134,13 +135,23 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.map_search_button:
                 try {
                     geoLocate(view);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                break;
+            default:
+
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        gotoLocation(CSULA_LAT, CSULA_LNG, 15);
+        Toast.makeText(getActivity(), "Map Ready", Toast.LENGTH_SHORT).show();
     }
 }
