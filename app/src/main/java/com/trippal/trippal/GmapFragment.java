@@ -48,7 +48,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
             if (initMap()){
                 Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
                 gotoLocation(CSULA_LAT, CSULA_LNG, 15);
-                Button search_button = (Button) view.findViewById(R.id.button_search);
+                Button search_button = (Button) view.findViewById(R.id.map_search_button);
                 search_button.setOnClickListener(this);
             }else{
                 Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
@@ -101,7 +101,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
     public void geoLocate(View v)throws IOException {
         hideSoftKeyboard(v);
 
-        TextView tv = (TextView) getActivity().findViewById(R.id.map_editText_location);
+        TextView tv = (TextView) getActivity().findViewById(R.id.map_location_editText);
         String searchString = tv.getText().toString();
 
         Geocoder gc = new Geocoder(getActivity());
@@ -135,7 +135,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.button_search:
+            case R.id.map_search_button:
                 try {
                     geoLocate(view);
                 } catch (IOException e) {
