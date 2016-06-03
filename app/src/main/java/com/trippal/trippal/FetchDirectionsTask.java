@@ -1,10 +1,17 @@
 package com.trippal.trippal;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,21 +22,25 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by samskim on 6/3/16.
  */
-public class FetchDirectionsTask extends AsyncTask<String, Void, String[]> {
+public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOptions>> {
 
     private final String LOG_TAG = FetchDirectionsTask.class.getSimpleName();
     private final Context mContext;
+    private GoogleMap mMap;
 
-    public FetchDirectionsTask(Context context){
+    public FetchDirectionsTask(Context context, GoogleMap mMap){
         mContext = context;
+        this.mMap = mMap;
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected List<PolylineOptions> doInBackground(String... params) {
 
         if (params.length == 0){
             return null;
@@ -81,8 +92,6 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, String[]> {
             }
 
             directionsJsonStr = buffer.toString();
-            Log.i(LOG_TAG, "URL\n" + builtUri.toString());
-            Log.i(LOG_TAG, "JSONSTR\n" + directionsJsonStr);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error", e);
@@ -109,10 +118,44 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, String[]> {
         return  null;
     }
 
-    private String[] getDirectionDatafromJson(String directionsJsonStr) throws JSONException {
+    private ArrayList<PolylineOptions> getDirectionDatafromJson(String directionsJsonStr) throws JSONException {
 
         JSONObject responseObj = new JSONObject(directionsJsonStr);
+        JSONObject routes = responseObj.getJSONArray("routes").getJSONObject(0);
+        JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+        JSONArray steps = legs.getJSONArray("steps");
 
-        return null;
+
+        ArrayList<PolylineOptions> polylines = new ArrayList<>();
+
+        for (int i = 0; i < steps.length(); i++){
+            JSONObject step = steps.getJSONObject(i);
+            JSONObject start_loc_obj = step.getJSONObject("start_location");
+            JSONObject end_loc_obj = step.getJSONObject("end_location");
+            LatLng start_loc = new LatLng(start_loc_obj.getDouble("lat"), start_loc_obj.getDouble("lng"));
+            LatLng end_loc = new LatLng(end_loc_obj.getDouble("lat"), end_loc_obj.getDouble("lng"));
+            PolylineOptions lineOption = new PolylineOptions()
+                    .color(Color.CYAN)
+                    .add(start_loc)
+                    .add(end_loc);
+
+            polylines.add(lineOption);
+        }
+
+
+        return polylines;
     }
+
+    @Override
+    protected void onPostExecute(List<PolylineOptions> lineOptions) {
+        if (lineOptions != null){
+
+            for (PolylineOptions option: lineOptions){
+                mMap.addPolyline(option);
+            }
+
+        }
+
+    }
+
 }

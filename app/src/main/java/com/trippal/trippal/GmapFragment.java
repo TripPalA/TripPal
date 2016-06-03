@@ -180,7 +180,17 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             originMarker = mMap.addMarker(options);
         } else if (destMarker == null) {
             destMarker = mMap.addMarker(options);
-            drawLine();
+
+//            drawLine();
+
+            // try fetchdirections task
+
+            FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
+            LatLng originPos = originMarker.getPosition();
+            LatLng destPos = destMarker.getPosition();
+            String origin = originPos.latitude + "," + originPos.longitude;
+            String dest = destPos.latitude + "," + destPos.longitude;
+            dirTask.execute(origin, dest);
         } else {
             removeEverything();
             originMarker = mMap.addMarker(options);
@@ -240,8 +250,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         mMap = googleMap;
         gotoLocation(CSULA_LAT, CSULA_LNG, 15);
         Toast.makeText(getActivity(), "Map Ready", Toast.LENGTH_SHORT).show();
-//        checkPermission();
-//        mMap.setMyLocationEnabled(true);
 
         if (mMap != null) {
             mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -329,11 +337,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             });
         }
 
-        FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity());
-        String origin = "Los Angeles, CA";
-        String dest = "Las Vegas, NV";
-        dirTask.execute(origin, dest);
-
     }
 
     private void showCurrentLocation(MenuItem item) {
@@ -346,9 +349,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     currentLocation.getLatitude(),
                     currentLocation.getLongitude()
             );
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(
-                    latLng, 15
-            );
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
             mMap.animateCamera(update);
         }
     }
@@ -376,6 +377,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
 
         mListener = new LocationListener() {
+
+            // listens to location changes
             @Override
             public void onLocationChanged(Location location) {
                 Toast.makeText(getActivity(),
