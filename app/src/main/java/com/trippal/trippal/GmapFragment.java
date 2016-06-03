@@ -144,7 +144,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 }
                 break;
             default:
-
         }
     }
 
