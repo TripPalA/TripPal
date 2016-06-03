@@ -57,8 +57,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             Button search_button = (Button) view.findViewById(R.id.map_search_button);
             search_button.setOnClickListener(this);
 
-//                Toast.makeText(getActivity(), "Map not connected", Toast.LENGTH_SHORT).show();
-
 
         } else {
             view = inflater.inflate(R.layout.content_main, container, false);
@@ -71,9 +69,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-//        MapFragment fragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.map);
-//        fragment.getMapAsync(this);
     }
 
     // checks if map service is connected
@@ -154,7 +149,22 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         mMap = googleMap;
         gotoLocation(CSULA_LAT, CSULA_LNG, 15);
         Toast.makeText(getActivity(), "Map Ready", Toast.LENGTH_SHORT).show();
-        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//        checkPermission();
+//        mMap.setMyLocationEnabled(true);
+
+        FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity());
+        String origin = "Los Angeles, CA";
+        String dest = "Las Vegas, NV";
+        dirTask.execute(origin, dest);
+
+    }
+
+    private void checkPermission(){
+        if (ActivityCompat.checkSelfPermission(
+                getActivity(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(),
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -164,6 +174,5 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mMap.setMyLocationEnabled(true);
     }
 }
