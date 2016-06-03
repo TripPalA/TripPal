@@ -66,6 +66,8 @@
     <string name="pref_rating_label">Ratings/Reviews</string>
     <string name="pref_rating_key">rating</string>
     <string name="pref_rating_default">Show All</string>
+    <string name="map_info">Map Info</string>
+    <string name="current_location">My Location</string>
     <string-array name="rating_array">
         <item>5 stars</item>
         <item>4 stars</item>
