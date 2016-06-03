@@ -1,7 +1,5 @@
 package com.trippal.trippal;
-
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,13 +12,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
-
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,22 +35,14 @@ public class SavedPOIFragment extends Fragment {
     private static final String LOG_TAG = SavedPOIFragment.class.getSimpleName();
 
     private void refresh() {
-      /*  Fragment f = getFragmentManager().findFragmentById(R.layout.saved_poi_layout);
-        FragmentManager frg = getFragmentManager();
-        frg.beginTransaction().detach(f).attach(f).commit();*/
-
-
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myPlaces = new MyPlace(getActivity());
-        //  myPlaces.savePlace(null);
-
     }
 
 
