@@ -23,8 +23,6 @@ public class TripContract {
 
 
     public static final class PlaceEntry implements BaseColumns {
-
-
         // Table name
         public static final String TABLE_NAME = "saved_places";
 
@@ -36,8 +34,23 @@ public class TripContract {
         public static final String COLUMN_COORD_LONG = "coord_long";
 
         public static final String COLUMN_DATE = "date";
-
     }
+
+    public static final class TripEntry implements BaseColumns {
+        // Table name
+        public static final String TABLE_NAME = "saved_trips";
+
+        public static final String COLUMN_ORIGIN_NAME = "origin_name";
+        public static final String COLUMN_ORIGIN_ADDRESS = "origin_address";
+        public static final String COLUMN_ORIGIN_GOOGLE_ID = "origin_g_id";
+
+        public static final String COLUMN_DEST_NAME = "dest_name";
+        public static final String COLUMN_DEST_ADDRESS = "dest_address";
+        public static final String COLUMN_DEST_GOOGLE_ID = "dest_g_id";
+
+        public static final String COLUMN_DATE = "date";
+    }
+
 
 
 }
