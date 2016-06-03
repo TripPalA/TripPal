@@ -1,6 +1,7 @@
 package com.trippal.trippal;
-
 import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +12,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
-
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -30,13 +34,15 @@ public class SavedPOIFragment extends Fragment {
     MyPlace myPlaces;
     private static final String LOG_TAG = SavedPOIFragment.class.getSimpleName();
 
+    private void refresh() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(this).attach(this).commit();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myPlaces = new MyPlace(getActivity());
-        //  myPlaces.savePlace(null);
-
     }
 
 
@@ -72,15 +78,105 @@ public class SavedPOIFragment extends Fragment {
             }
         });
 
+        //clear all poi button
         Button button = (Button) myView.findViewById(R.id.clear_all_poi);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
+            protected void finalize() throws Throwable {
+                super.finalize();
+                myView.refreshDrawableState();
+            }
+
+            @Override
             public void onClick(View v) {
                 myPlaces.clearPlaces();
-
+                refresh();
             }
         });
 
+        //add new place button
+        Button button_add = (Button) myView.findViewById(R.id.add_poi);
+        button_add.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                myPlaces.savePlace(new Place() {
+                    @Override
+                    public String getId() {
+                        return "ChIJLSHERe3PwoAR_jua-uyLzSA";
+                    }
+
+                    @Override
+                    public List<Integer> getPlaceTypes() {
+                        List<Integer> l = new ArrayList<Integer>();
+                        l.add(1);
+                        return l;
+                    }
+
+                    @Override
+                    public CharSequence getAddress() {
+                        return "5151 State University Dr., Los Angeles, CA 90032";
+                    }
+
+                    @Override
+                    public Locale getLocale() {
+                        return null;
+                    }
+
+                    @Override
+                    public CharSequence getName() {
+                        return "Cal State LA";
+                    }
+
+                    @Override
+                    public LatLng getLatLng() {
+                        return null;
+                    }
+
+                    @Override
+                    public LatLngBounds getViewport() {
+                        return null;
+                    }
+
+                    @Override
+                    public Uri getWebsiteUri() {
+                        return null;
+                    }
+
+                    @Override
+                    public CharSequence getPhoneNumber() {
+                        return null;
+                    }
+
+                    @Override
+                    public float getRating() {
+                        return 0;
+                    }
+
+                    @Override
+                    public int getPriceLevel() {
+                        return 0;
+                    }
+
+                    @Override
+                    public CharSequence getAttributions() {
+                        return null;
+                    }
+
+                    @Override
+                    public Place freeze() {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean isDataValid() {
+                        return true;
+                    }
+                });
+                refresh();
+            }
+        });
 
         return myView;
     }
