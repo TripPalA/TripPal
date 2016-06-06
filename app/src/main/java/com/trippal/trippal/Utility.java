@@ -9,9 +9,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 
@@ -120,6 +124,31 @@ public class Utility {
                 // result of the request.
             }
         }
+
+    }
+
+    static private TextToSpeech engine = null;
+
+    public static void tts(final Activity activity, final String text) {
+        if (engine == null) {
+            engine = new TextToSpeech(activity.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if (status == TextToSpeech.SUCCESS) {
+                        Log.v(LOG_TAG, "Success! TTS engine initialized");
+                        tts(activity, text);
+                        //Toast.makeText(activity.getApplicationContext(), text, Toast.LENGTH_LONG).show();
+                    } else {
+                        Log.v(LOG_TAG, "Failed" + String.valueOf(status));
+                    }
+                }
+            });
+        } else {
+            engine.setPitch((float) 1.5);
+            engine.setSpeechRate((float) .8);
+            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+
 
     }
 
