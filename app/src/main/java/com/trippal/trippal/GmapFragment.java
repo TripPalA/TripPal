@@ -185,12 +185,17 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             // try fetchdirections task
 
-            FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
+//            FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
             LatLng originPos = originMarker.getPosition();
-            LatLng destPos = destMarker.getPosition();
+//            LatLng destPos = destMarker.getPosition();
             String origin = originPos.latitude + "," + originPos.longitude;
-            String dest = destPos.latitude + "," + destPos.longitude;
-            dirTask.execute(origin, dest);
+//            String dest = destPos.latitude + "," + destPos.longitude;
+//            dirTask.execute(origin, dest);
+
+            FetchPlaceTask ftp = new FetchPlaceTask(getActivity(), mMap);
+            ftp.execute(String.valueOf(originPos.latitude), String.valueOf(originPos.longitude));
+
+
         } else {
             removeEverything();
             originMarker = mMap.addMarker(options);

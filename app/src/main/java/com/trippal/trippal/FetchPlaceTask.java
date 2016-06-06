@@ -5,9 +5,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,11 +31,13 @@ import java.util.Locale;
  */
 public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
 
+    private GoogleMap mMap;
     private Activity activity;
     private final String LOG_TAG = FetchPlaceTask.class.getSimpleName();
 
-    public FetchPlaceTask(Activity activity) {
+    public FetchPlaceTask(Activity activity, GoogleMap mMap) {
         this.activity = activity;
+        this.mMap = mMap;
 
     }
 
@@ -62,8 +66,14 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
         //       Log.v(LOG_TAG, Utility.getRadius(activity));
 
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                .appendQueryParameter(RADIUS, Utility.getRadius(activity))//in km
+//                .appendQueryParameter(RADIUS, Utility.getRadius(activity))//in km
+                .appendQueryParameter(RADIUS, "5")//in km
+
                 .appendQueryParameter(CURR_LOCATION, coord.latitude + "," + coord.longitude)
+
+                .appendQueryParameter("rankby", "distance")
+//                .appendQueryParameter("type", "point_of_interest")
+
                 .appendQueryParameter(API_PARAM, Utility.getApiKey(activity))
                 .build();
 
@@ -94,7 +104,7 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
             }
 
             placesJsonString = buffer.toString();
-            //Log.v(LOG_TAG, placesJsonString);
+            Log.v(LOG_TAG, placesJsonString);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error", e);
@@ -243,6 +253,29 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
         super.onPostExecute(place);
         //todo: do something with places found
         Log.v(LOG_TAG, "places found: " + String.valueOf(place.size()));
+
+        if (place != null) {
+            for (Place p : place) {
+
+                // Creating a marker
+                MarkerOptions markerOptions = new MarkerOptions();
+
+                LatLng latLng = p.getLatLng();
+
+//                // Getting latitude of the place
+//                double lat = latLng.latitude;
+//
+//                // Getting longitude of the place
+//                double lng = latLng.longitude;
+
+                // Setting the position for the marker
+                markerOptions.position(latLng);
+                markerOptions.snippet(p.getName().toString());
+                // Placing a marker on the touched position
+                mMap.addMarker(markerOptions);
+            }
+        }
+
 
     }
 }
