@@ -42,7 +42,7 @@ public class Utility {
     public static boolean isMetric(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String value = prefs.getString(context.getString(R.string.pref_units_key), null);
+        String value = prefs.getString(context.getString(R.string.pref_units_key), context.getString(R.string.pref_units_default));
         String metric = prefs.getString(context.getString(R.string.pref_units_metric), context.getString(R.string.pref_units_metric));
 
         /*Log.v(LOG_TAG, prefs.getString(context.getString(R.string.pref_units_key), null));
@@ -57,13 +57,14 @@ public class Utility {
         // String radius = context.getString(R.string.pref_radius_default);
 
 
-        String radius = prefs.getString(context.getString(R.string.pref_radius_key), null);
+        String radius = prefs.getString(context.getString(R.string.pref_radius_key), context.getString(R.string.pref_radius_default));
         if (isMetric(context)) {
-            Log.v(LOG_TAG, "metric: " + radius + "km");
+            double r = Double.parseDouble(radius) * 1000;
+            Log.v(LOG_TAG, "metric: " + r + "m");
             return radius;
         } else {
-            double r = Double.parseDouble(radius) * .6214;
-            Log.v(LOG_TAG, "imperial: " + radius + "mi -> " + r + "km");
+            double r = Double.parseDouble(radius) * 1000 * .6214;
+            Log.v(LOG_TAG, "imperial: " + radius + "mi -> " + r + "m");
             return String.valueOf(r);
         }
     }
