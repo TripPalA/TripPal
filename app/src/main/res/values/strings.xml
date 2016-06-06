@@ -6,8 +6,6 @@
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>
     <string name="lets_go">AND GO!</string>
-    <string name="map_button_search">Search</string>
-    <string name="map_textView_location">Location:</string>
 
     <!--preferences-->
     <string name="pref_units_default" translatable="false">Metric</string>
@@ -68,6 +66,10 @@
     <string name="pref_rating_default">Show All</string>
     <string name="map_info">Map Info</string>
     <string name="current_location">My Location</string>
+    <string name="map_origin_tv">Origin</string>
+    <string name="map_dest_tv">Destination</string>
+    <string name="origin_button_search">Search</string>
+    <string name="dest_button_search">Search</string>
     <string-array name="rating_array">
         <item>5 stars</item>
         <item>4 stars</item>

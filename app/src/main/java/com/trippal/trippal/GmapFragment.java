@@ -75,8 +75,11 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         if (servicesOK()) {
             view = inflater.inflate(R.layout.fragment_maps, container, false);
 
-            Button search_button = (Button) view.findViewById(R.id.map_search_button);
-            search_button.setOnClickListener(this);
+            Button origin_search_button = (Button) view.findViewById(R.id.origin_search_button);
+            origin_search_button.setOnClickListener(this);
+
+            Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
+            dest_search_button.setOnClickListener(this);
 
             initMap();
 
@@ -105,6 +108,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             case R.id.currentLocation:
                 showCurrentLocation(item);
                 break;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -143,7 +147,13 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     public void geoLocate(View v) throws IOException {
         hideSoftKeyboard(v);
 
-        TextView tv = (TextView) getActivity().findViewById(R.id.map_location_editText);
+        TextView tv = null;
+        if (v.getId() == R.id.origin_search_button){
+            tv = (TextView) getActivity().findViewById(R.id.map_origin_et);
+        }else if (v.getId() == R.id.dest_search_button){
+            tv = (TextView) getActivity().findViewById(R.id.map_dest_et);
+        }
+
         String searchString = tv.getText().toString();
 
         Geocoder gc = new Geocoder(getActivity());
@@ -159,8 +169,25 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             double lng = address.getLongitude();
             gotoLocation(lat, lng, 15);
 
+            MarkerOptions options = new MarkerOptions()
+                    .title(address.getLocality())
+                    .position(new LatLng(lat, lng))
+                    .draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+            String country = address.getCountryName();
+            if (country.length() > 0) {
+                options.snippet(country);
+            }
+
+            if (v.getId() == R.id.origin_search_button){
+                originMarker = mMap.addMarker(options);
+            }else if (v.getId() == R.id.dest_search_button){
+                destMarker = mMap.addMarker(options);
+            }
 
         }
+
     }
 
     private void addMarker(Address add, double lat, double lng) {
@@ -181,21 +208,20 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         } else if (destMarker == null) {
             destMarker = mMap.addMarker(options);
 
-//            drawLine();
-
-            // try fetchdirections task
-
-            FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
-            LatLng originPos = originMarker.getPosition();
-            LatLng destPos = destMarker.getPosition();
-            String origin = originPos.latitude + "," + originPos.longitude;
-            String dest = destPos.latitude + "," + destPos.longitude;
-            dirTask.execute(origin, dest);
         } else {
             removeEverything();
             originMarker = mMap.addMarker(options);
         }
 
+    }
+
+    private void findDirection(){
+        FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
+        LatLng originPos = originMarker.getPosition();
+        LatLng destPos = destMarker.getPosition();
+        String origin = originPos.latitude + "," + originPos.longitude;
+        String dest = destPos.latitude + "," + destPos.longitude;
+        dirTask.execute(origin, dest);
     }
 
     private void drawLine() {
@@ -234,13 +260,25 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.map_search_button:
+            case R.id.origin_search_button:
+                try {
+                    geoLocate(view);
+
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.dest_search_button:
                 try {
                     geoLocate(view);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
+            case R.id.go_button:
+
             default:
         }
     }
