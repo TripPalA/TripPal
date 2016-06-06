@@ -5,47 +5,101 @@
     android:layout_height="match_parent"
     android:padding="6dp"
     tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="1">
 
     <RelativeLayout
+        android:id="@+id/map_origin_rl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/map_location_textView"
+            android:id="@+id/map_origin_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/map_textView_location"
+            android:text="@string/map_origin_tv"
             android:textSize="22dp" />
 
         <EditText
-            android:id="@+id/map_location_editText"
+            android:id="@+id/map_origin_et"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/map_location_textView"
-            android:layout_toRightOf="@id/map_location_textView"
+            android:layout_alignBaseline="@id/map_origin_tv"
+            android:layout_toRightOf="@id/map_origin_tv"
             android:ems="6"
             android:inputType="textCapWords"
             android:textSize="22dp" />
 
         <Button
-            android:id="@+id/map_search_button"
+            android:id="@+id/origin_search_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/map_location_textView"
+            android:layout_alignBaseline="@id/map_origin_tv"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:onClick="geoLocate"
-            android:text="@string/map_button_search" />
+            android:text="@string/origin_button_search" />
+
     </RelativeLayout>
 
-    <fragment
-        android:id="@+id/map"
-        class="com.google.android.gms.maps.MapFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+    <RelativeLayout
+        android:id="@+id/map_dest_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        />
+        <TextView
+            android:id="@+id/map_dest_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/map_dest_tv"
+            android:textSize="22dp"/>
+
+        <EditText
+            android:id="@+id/map_dest_et"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/map_dest_tv"
+            android:layout_toRightOf="@id/map_dest_tv"
+            android:ems="6"
+            android:inputType="textCapWords"
+            android:textSize="22dp" />
+
+        <Button
+            android:id="@+id/dest_search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/map_dest_tv"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:onClick="geoLocate"
+            android:text="@string/dest_button_search" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+        <fragment
+            android:id="@+id/map"
+            class="com.google.android.gms.maps.MapFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            />
+
+        <Button
+            android:id="@+id/map_go_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lets_go"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
+
 
 
 </LinearLayout>
