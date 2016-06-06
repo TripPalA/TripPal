@@ -66,6 +66,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private Polyline line;
     private GoogleApiClient mLocationClient;
     private LocationListener mListener;
+    private boolean findingPlace = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -220,9 +221,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         } else if (destMarker == null) {
             destMarker = mMap.addMarker(options);
 
-            LatLng originPos = originMarker.getPosition();
-            FetchPlaceTask ftp = new FetchPlaceTask(getActivity(), mMap);
-            ftp.execute(String.valueOf(originPos.latitude), String.valueOf(originPos.longitude));
+//            LatLng originPos = originMarker.getPosition();
+//            FetchPlaceTask ftp = new FetchPlaceTask(getActivity(), mMap);
+//            ftp.execute(String.valueOf(originPos.latitude), String.valueOf(originPos.longitude));
 
         } else {
             removeEverything();
@@ -241,8 +242,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
         // get camera update and animate the camera
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(originPos, 15);
-
         mMap.animateCamera(update);
+        findingPlace = true;
     }
 
     private void drawLine() {
@@ -445,13 +446,19 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             // listens to location changes
             @Override
             public void onLocationChanged(Location location) {
-                Toast.makeText(getActivity(),
-                        "Location changed: " + location.getLatitude() + ", " +
-                                location.getLongitude(), Toast.LENGTH_SHORT).show();
 
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                if (findingPlace){
+                    Toast.makeText(getActivity(),
+                            "Location changed: " + location.getLatitude() + ", " +
+                                    location.getLongitude(), Toast.LENGTH_SHORT).show();
 
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                    mMap.animateCamera(update);
+
+                    FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), mMap);
+                    placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+                }
             }
         };
 
