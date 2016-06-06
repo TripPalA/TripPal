@@ -208,6 +208,12 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         } else if (destMarker == null) {
             destMarker = mMap.addMarker(options);
 
+
+            LatLng originPos = originMarker.getPosition();
+            FetchPlaceTask ftp = new FetchPlaceTask(getActivity(), mMap);
+            ftp.execute(String.valueOf(originPos.latitude), String.valueOf(originPos.longitude));
+
+
         } else {
             removeEverything();
             originMarker = mMap.addMarker(options);
