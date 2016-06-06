@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by layla on 5/22/2016.
@@ -80,6 +81,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
             dest_search_button.setOnClickListener(this);
+
+            Button go_button = (Button) view.findViewById(R.id.map_go_button);
+            go_button.setOnClickListener(this);
 
             initMap();
 
@@ -158,6 +162,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
         Geocoder gc = new Geocoder(getActivity());
 
+        // search place
         List<Address> list = gc.getFromLocationName(searchString, 1);
 
         if (list.size() > 0) {
@@ -169,11 +174,12 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             double lng = address.getLongitude();
             gotoLocation(lat, lng, 15);
 
+            // add marker
             MarkerOptions options = new MarkerOptions()
                     .title(address.getLocality())
                     .position(new LatLng(lat, lng))
                     .draggable(true)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
 
             String country = address.getCountryName();
             if (country.length() > 0) {
@@ -181,8 +187,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             }
 
             if (v.getId() == R.id.origin_search_button){
+                if (originMarker != null){
+                    originMarker.remove();
+                }
                 originMarker = mMap.addMarker(options);
             }else if (v.getId() == R.id.dest_search_button){
+                if (destMarker != null){
+                    destMarker.remove();
+                }
                 destMarker = mMap.addMarker(options);
             }
 
@@ -207,7 +219,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             originMarker = mMap.addMarker(options);
         } else if (destMarker == null) {
             destMarker = mMap.addMarker(options);
-
         } else {
             removeEverything();
             originMarker = mMap.addMarker(options);
@@ -215,13 +226,18 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     }
 
-    private void findDirection(){
+    private void findDirectionAndGo(View view){
         FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
         LatLng originPos = originMarker.getPosition();
         LatLng destPos = destMarker.getPosition();
         String origin = originPos.latitude + "," + originPos.longitude;
         String dest = destPos.latitude + "," + destPos.longitude;
         dirTask.execute(origin, dest);
+
+        // get camera update and animate the camera
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(originPos, 15);
+
+        mMap.animateCamera(update);
     }
 
     private void drawLine() {
@@ -264,8 +280,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 try {
                     geoLocate(view);
 
-
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -277,7 +291,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     e.printStackTrace();
                 }
                 break;
-            case R.id.go_button:
+            case R.id.map_go_button:
+                findDirectionAndGo(view);
+                break;
 
             default:
         }
@@ -389,6 +405,11 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             );
             CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
             mMap.animateCamera(update);
+
+
+
+
+
         }
     }
 
@@ -423,7 +444,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                         "Location changed: " + location.getLatitude() + ", " +
                                 location.getLongitude(), Toast.LENGTH_SHORT).show();
 
-                gotoLocation(location.getLatitude(), location.getLongitude(), 15);
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
 
             }
         };
@@ -432,7 +454,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         request.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
         // use minute for production
-//        request.setInterval(60000);
+        request.setInterval(60000);
 
         checkPermission();
         LocationServices.FusedLocationApi.requestLocationUpdates(
