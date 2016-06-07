@@ -10,9 +10,13 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -45,7 +49,7 @@ public class Utility {
     public static boolean isMetric(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String value = prefs.getString(context.getString(R.string.pref_units_key), null);
+        String value = prefs.getString(context.getString(R.string.pref_units_key), context.getString(R.string.pref_units_default));
         String metric = prefs.getString(context.getString(R.string.pref_units_metric), context.getString(R.string.pref_units_metric));
 
         /*Log.v(LOG_TAG, prefs.getString(context.getString(R.string.pref_units_key), null));
@@ -60,13 +64,14 @@ public class Utility {
         // String radius = context.getString(R.string.pref_radius_default);
 
 
-        String radius = prefs.getString(context.getString(R.string.pref_radius_key), null);
+        String radius = prefs.getString(context.getString(R.string.pref_radius_key), context.getString(R.string.pref_radius_default));
         if (isMetric(context)) {
-            Log.v(LOG_TAG, "metric: " + radius + "km");
+            double r = Double.parseDouble(radius) * 1000;
+            Log.v(LOG_TAG, "metric: " + r + "m");
             return radius;
         } else {
-            double r = Double.parseDouble(radius) * .6214;
-            Log.v(LOG_TAG, "imperial: " + radius + "mi -> " + r + "km");
+            double r = Double.parseDouble(radius) * 1000 * .6214;
+            Log.v(LOG_TAG, "imperial: " + radius + "mi -> " + r + "m");
             return String.valueOf(r);
         }
     }
@@ -125,5 +130,29 @@ public class Utility {
 
     }
 
+    static private TextToSpeech engine = null;
+
+    public static void tts(final Activity activity, final String text) {
+        if (engine == null) {
+            engine = new TextToSpeech(activity.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if (status == TextToSpeech.SUCCESS) {
+                        Log.v(LOG_TAG, "Success! TTS engine initialized");
+                        tts(activity, text);
+                        //Toast.makeText(activity.getApplicationContext(), text, Toast.LENGTH_LONG).show();
+                    } else {
+                        Log.v(LOG_TAG, "Failed" + String.valueOf(status));
+                    }
+                }
+            });
+        } else {
+            engine.setPitch((float) 1.5);
+            engine.setSpeechRate((float) .8);
+//            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+
+
+    }
 
 }
