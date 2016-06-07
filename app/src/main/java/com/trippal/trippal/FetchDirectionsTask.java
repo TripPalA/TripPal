@@ -1,5 +1,6 @@
 package com.trippal.trippal;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
@@ -30,13 +31,20 @@ import java.util.List;
  */
 public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOptions>> {
 
+    public interface AsyncResponse {
+        void processFinish(List<Polyline> lines);
+    }
+
+    public AsyncResponse delegate = null;
+
     private final String LOG_TAG = FetchDirectionsTask.class.getSimpleName();
-    private final Context mContext;
+    private Activity activity;
     private GoogleMap mMap;
 
-    public FetchDirectionsTask(Context context, GoogleMap mMap){
-        mContext = context;
+    public FetchDirectionsTask(Activity activity, GoogleMap mMap, AsyncResponse delegate){
+        this.activity = activity;
         this.mMap = mMap;
+        this.delegate = delegate;
     }
 
     @Override
@@ -64,7 +72,7 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOp
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                 .appendQueryParameter(ORIGIN_PARAM, origin)
                 .appendQueryParameter(DEST_PARAM, destination)
-                .appendQueryParameter(API_PARAM, "AIzaSyDDbYFy3AmllmFdsh3Gy_-4nQcXsVQW040")
+                .appendQueryParameter(API_PARAM, Utility.getApiKey(activity))
                 .build();
 
         try {
@@ -148,14 +156,15 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOp
 
     @Override
     protected void onPostExecute(List<PolylineOptions> lineOptions) {
-        if (lineOptions != null){
+        List<Polyline> lines = new ArrayList<>();
 
+        if (lineOptions != null){
             for (PolylineOptions option: lineOptions){
-                mMap.addPolyline(option);
+                lines.add(mMap.addPolyline(option));
             }
 
         }
-
+        delegate.processFinish(lines);
     }
 
 }

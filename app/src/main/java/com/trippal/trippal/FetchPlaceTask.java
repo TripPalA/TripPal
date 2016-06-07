@@ -9,7 +9,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +26,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -31,19 +36,24 @@ import java.util.Locale;
  */
 public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
 
+    public interface AsyncResponse{
+        void processFinish(List<Marker> markers);
+    }
+
+    public AsyncResponse delegate = null;
+
     private GoogleMap mMap;
     private Activity activity;
     private final String LOG_TAG = FetchPlaceTask.class.getSimpleName();
 
-    public FetchPlaceTask(Activity activity, GoogleMap mMap) {
+    public FetchPlaceTask(Activity activity, GoogleMap mMap, AsyncResponse delegate) {
         this.activity = activity;
         this.mMap = mMap;
-
+        this.delegate = delegate;
     }
 
     @Override
     protected List<Place> doInBackground(String... params) {
-
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -67,10 +77,10 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
 
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
 //                .appendQueryParameter(RADIUS, Utility.getRadius(activity))//in km
-                .appendQueryParameter(RADIUS, "5000")//in km
+                .appendQueryParameter(RADIUS, "1600") // set radius to 1 mile
 
                 .appendQueryParameter(CURR_LOCATION, coord.latitude + "," + coord.longitude)
-                //                .appendQueryParameter("type", "point_of_interest")
+                .appendQueryParameter("type", "point_of_interest")
 
                 .appendQueryParameter(API_PARAM, Utility.getApiKey(activity))
                 .build();
@@ -205,7 +215,12 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
 
                     @Override
                     public float getRating() {
-                        return 0;
+                        try {
+                            return (float) obj.getDouble("rating");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        return (float) 0.0;
                     }
 
                     @Override
@@ -213,11 +228,32 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
                         return 0;
                     }
 
+                    // use it for photo
                     @Override
                     public CharSequence getAttributions() {
 
                         try {
-                            return obj.get("html_attributions").toString();
+                            JSONArray photos = obj.getJSONArray("photos");
+                            if (photos != null && photos.length() > 0){
+                                JSONObject photoObj = photos.getJSONObject(0);
+                                JSONArray html_attributions = photoObj.getJSONArray("html_attributions");
+                                if (html_attributions != null && html_attributions.length() > 0){
+                                    String anchortag = html_attributions.get(0).toString();
+                                    Pattern p = Pattern.compile("<a href=(\\\"[^\\\"]*\\\")[^<]*</a>");
+                                    Matcher m = p.matcher(anchortag);
+                                    String url = null;
+                                    if (m.find()) {
+                                        url = m.group(1); // this variable should contain the link URL
+                                        url = url.replaceAll("\"", "");
+
+                                    }
+                                    return url;
+                                }else{
+                                    return null;
+                                }
+                            }else{
+                                return null;
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -249,30 +285,36 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
     @Override
     protected void onPostExecute(List<Place> place) {
         super.onPostExecute(place);
+
+        List<Marker> markers = new ArrayList<>();
+
         //todo: do something with places found
         Log.v(LOG_TAG, "places found: " + String.valueOf(place.size()));
 
         if (place != null) {
             for (Place p : place) {
-
-                // Creating a marker
-                MarkerOptions markerOptions = new MarkerOptions();
-
                 LatLng latLng = p.getLatLng();
 
-//                // Getting latitude of the place
-//                double lat = latLng.latitude;
-//
-//                // Getting longitude of the place
-//                double lng = latLng.longitude;
+                String address = p.getAddress().toString();
+                String rating = "Rating: " + p.getRating();
 
-                // Setting the position for the marker
-                markerOptions.position(latLng);
-                markerOptions.snippet(p.getName().toString());
+                String imageUrl = null;
+                if (p.getAttributions() != null){
+                    imageUrl = p.getAttributions().toString();
+                }
+
+                // Creating a marker
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(latLng)
+                        .title(p.getName().toString())
+                        .snippet(address + "%%" + rating + "%%" + imageUrl);
+
                 // Placing a marker on the touched position
-                mMap.addMarker(markerOptions);
+                markers.add(mMap.addMarker(markerOptions));
             }
         }
+
+        delegate.processFinish(markers);
 
 
     }

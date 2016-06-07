@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +44,10 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  * Created by layla on 5/22/2016.
@@ -63,10 +68,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     private Marker originMarker;
     private Marker destMarker;
-    private Polyline line;
     private GoogleApiClient mLocationClient;
     private LocationListener mListener;
     private boolean findingPlace = false;
+    private boolean init = false;
+    List<Polyline> lines;
+    List<Marker> markers;
+    private Location lastCheckedPoint;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,17 +86,15 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         if (servicesOK()) {
             view = inflater.inflate(R.layout.fragment_maps, container, false);
 
-            Button origin_search_button = (Button) view.findViewById(R.id.origin_search_button);
-            origin_search_button.setOnClickListener(this);
+            // set buttons on listener
+            setButtonListners(view);
 
-            Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
-            dest_search_button.setOnClickListener(this);
-
-            Button go_button = (Button) view.findViewById(R.id.map_go_button);
-            go_button.setOnClickListener(this);
-
+            // initialize map
             initMap();
+            lines = new ArrayList<>();
+            markers = new ArrayList<>();
 
+            // set location client for listening to map changes
             mLocationClient = new GoogleApiClient.Builder(getActivity())
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
@@ -96,7 +103,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             mLocationClient.connect();
 
-
         } else {
             view = inflater.inflate(R.layout.content_main, container, false);
         }
@@ -104,16 +110,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         return view;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         switch (id) {
             case R.id.currentLocation:
-                showCurrentLocation(item);
+                showCurrentLocation();
                 break;
-
         }
 
         return super.onOptionsItemSelected(item);
@@ -122,6 +126,17 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    public void setButtonListners(View view) {
+        Button origin_search_button = (Button) view.findViewById(R.id.origin_search_button);
+        origin_search_button.setOnClickListener(this);
+
+        Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
+        dest_search_button.setOnClickListener(this);
+
+        Button go_button = (Button) view.findViewById(R.id.map_go_button);
+        go_button.setOnClickListener(this);
     }
 
     // checks if map service is connected
@@ -153,9 +168,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         hideSoftKeyboard(v);
 
         TextView tv = null;
-        if (v.getId() == R.id.origin_search_button){
+        if (v.getId() == R.id.origin_search_button) {
             tv = (TextView) getActivity().findViewById(R.id.map_origin_et);
-        }else if (v.getId() == R.id.dest_search_button){
+        } else if (v.getId() == R.id.dest_search_button) {
             tv = (TextView) getActivity().findViewById(R.id.map_dest_et);
         }
 
@@ -173,72 +188,65 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             double lat = address.getLatitude();
             double lng = address.getLongitude();
+
+            addMarker(v, address, lat, lng);
+
             gotoLocation(lat, lng, 15);
-
-            // add marker
-            MarkerOptions options = new MarkerOptions()
-                    .title(address.getLocality())
-                    .position(new LatLng(lat, lng))
-                    .draggable(true)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
-
-            String country = address.getCountryName();
-            if (country.length() > 0) {
-                options.snippet(country);
-            }
-
-            if (v.getId() == R.id.origin_search_button){
-                if (originMarker != null){
-                    originMarker.remove();
-                }
-                originMarker = mMap.addMarker(options);
-            }else if (v.getId() == R.id.dest_search_button){
-                if (destMarker != null){
-                    destMarker.remove();
-                }
-                destMarker = mMap.addMarker(options);
-            }
-
         }
 
     }
 
-    private void addMarker(Address add, double lat, double lng) {
+    private void addMarker(View v, Address add, double lat, double lng) {
+        String address = add.getFeatureName() + " " + add.getThoroughfare() + ", " +
+                add.getLocality() + ", " + add.getAdminArea() + " " +
+                add.getPostalCode();
+
         MarkerOptions options = new MarkerOptions()
-                .title(add.getLocality())
+                .title(add.getFeatureName())
                 .position(new LatLng(lat, lng))
+                .snippet(address)
                 .draggable(true)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 //                    .icon(BitmapDescriptorFactory.fromResource(R.))
 
-        String country = add.getCountryName();
-        if (country.length() > 0) {
-            options.snippet(country);
-        }
-
-        if (originMarker == null) {
+        if (v == null) {
+            if (originMarker == null){
+                originMarker = mMap.addMarker(options);
+            }else if (destMarker == null){
+                destMarker = mMap.addMarker(options);
+            }else{
+                removeEverything();
+                originMarker = mMap.addMarker(options);
+            }
+        } else if (v.getId() == R.id.origin_search_button) {
+            if (originMarker != null) {
+                originMarker.remove();
+            }
             originMarker = mMap.addMarker(options);
-        } else if (destMarker == null) {
+        } else if (v.getId() == R.id.dest_search_button) {
+            if (destMarker != null) {
+                destMarker.remove();
+            }
             destMarker = mMap.addMarker(options);
-
-//            LatLng originPos = originMarker.getPosition();
-//            FetchPlaceTask ftp = new FetchPlaceTask(getActivity(), mMap);
-//            ftp.execute(String.valueOf(originPos.latitude), String.valueOf(originPos.longitude));
-
-        } else {
-            removeEverything();
-            originMarker = mMap.addMarker(options);
         }
 
     }
 
-    private void findDirectionAndGo(View view){
-        FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap);
+    private void findDirectionAndGo(View view) {
+        removeLines();
+        FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap, new FetchDirectionsTask.AsyncResponse() {
+            @Override
+            public void processFinish(List<Polyline> result) {
+                lines = result;
+            }
+        });
+
         LatLng originPos = originMarker.getPosition();
         LatLng destPos = destMarker.getPosition();
         String origin = originPos.latitude + "," + originPos.longitude;
         String dest = destPos.latitude + "," + destPos.longitude;
         dirTask.execute(origin, dest);
+
 
         // get camera update and animate the camera
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(originPos, 15);
@@ -246,23 +254,22 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         findingPlace = true;
     }
 
-    private void drawLine() {
-        PolylineOptions lineOptions = new PolylineOptions()
-                .color(Color.CYAN)
-                .add(originMarker.getPosition())
-                .add(destMarker.getPosition());
-
-        line = mMap.addPolyline(lineOptions);
-    }
-
     private void removeEverything() {
         originMarker.remove();
         originMarker = null;
         destMarker.remove();
         destMarker = null;
-        if (line != null) {
-            line.remove();
-            line = null;
+    }
+
+    private void removeLines(){
+        if (lines != null && !lines.isEmpty()){
+            for (Polyline line: lines) line.remove();
+        }
+    }
+
+    private void removeMarkers(){
+        if (markers != null && !markers.isEmpty()){
+            for (Marker marker: markers) marker.remove();
         }
     }
 
@@ -308,7 +315,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        gotoLocation(CSULA_LAT, CSULA_LNG, 15);
+
         Toast.makeText(getActivity(), "Map Ready", Toast.LENGTH_SHORT).show();
 
         if (mMap != null) {
@@ -321,16 +328,25 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 @Override
                 public View getInfoContents(Marker marker) {
                     View v = getActivity().getLayoutInflater().inflate(R.layout.map_info_window, null);
-                    TextView tvLocality = (TextView) v.findViewById(R.id.tvLocality);
-                    TextView tvLat = (TextView) v.findViewById(R.id.tvLat);
-                    TextView tvLng = (TextView) v.findViewById(R.id.tvLng);
-                    TextView tvSnippet = (TextView) v.findViewById(R.id.tvSnippet);
+                    ImageView imageView = (ImageView) v.findViewById(R.id.info_image_iv);
+                    TextView tvTitle= (TextView) v.findViewById(R.id.info_title_tv);
+                    TextView tvAddress = (TextView) v.findViewById(R.id.info_address_tv);
+                    TextView tvRating = (TextView) v.findViewById(R.id.info_rating_tv);
+                    TextView tvSnippet = (TextView) v.findViewById(R.id.info_snipppet_tv);
 
                     LatLng latLng = marker.getPosition();
-                    tvLocality.setText(marker.getTitle());
-                    tvLat.setText("Latitude: " + latLng.latitude);
-                    tvLng.setText("Longitude: " + latLng.longitude);
-                    tvSnippet.setText(marker.getSnippet());
+                    tvTitle.setText(marker.getTitle());
+
+                    String snippets[] = marker.getSnippet().split("%%");
+
+                    tvAddress.setText(snippets[0]);
+
+                    if (snippets.length > 1){
+                        tvSnippet.setText(snippets[1]);
+                        if (snippets.length > 2 && snippets[2] != null && !snippets[2].isEmpty()){
+                            new DownloadImageTask(imageView).execute(snippets[2]);
+                        }
+                    }
 
                     return v;
                 }
@@ -351,7 +367,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     }
 
                     Address address = list.get(0);
-                    addMarker(address, latLng.latitude, latLng.longitude);
+                    addMarker(null, address, latLng.latitude, latLng.longitude);
                 }
             });
 
@@ -399,8 +415,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     }
 
-    private void showCurrentLocation(MenuItem item) {
-        checkPermission();
+    private void showCurrentLocation() {
+        Utility.checkPermission(getActivity());
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
         if (currentLocation == null) {
             Toast.makeText(getActivity(), "Couldn't connect!", Toast.LENGTH_SHORT).show();
@@ -411,29 +427,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             );
             CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
             mMap.animateCamera(update);
-
-
-
-
-
-        }
-    }
-
-
-    private void checkPermission() {
-        if (ActivityCompat.checkSelfPermission(
-                getActivity(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(),
-                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
         }
     }
 
@@ -441,13 +434,18 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     public void onConnected(@Nullable Bundle bundle) {
         Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
 
+        if (!init) {
+            init = true;
+            showCurrentLocation();
+        }
+
         mListener = new LocationListener() {
 
-            // listens to location changes
+            // tell what to do to listener
             @Override
             public void onLocationChanged(Location location) {
 
-                if (findingPlace){
+                if (findingPlace) {
                     Toast.makeText(getActivity(),
                             "Location changed: " + location.getLatitude() + ", " +
                                     location.getLongitude(), Toast.LENGTH_SHORT).show();
@@ -456,8 +454,15 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                     mMap.animateCamera(update);
 
-                    FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), mMap);
-                    placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+                    // fetch for places only if moved distance is greater than 3200 meters (2 miles)
+                    if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > 3200){
+
+                        fetchPlaces(latLng);
+                        Toast.makeText(getActivity(), "Fetching places", Toast.LENGTH_SHORT);
+                        lastCheckedPoint = location;
+
+                    }
+
                 }
             }
         };
@@ -465,13 +470,25 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         LocationRequest request = LocationRequest.create();
         request.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
-        // use minute for production
-        request.setInterval(60000);
+        // updates the map every 10 seconds, and must move more than 20 meters
+        request.setInterval(10000);
+//        request.setSmallestDisplacement(20);
 
-        checkPermission();
+        Utility.checkPermission(getActivity());
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mLocationClient, request, mListener
         );
+    }
+
+    public void fetchPlaces(LatLng latLng){
+        removeMarkers();
+        FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), mMap, new FetchPlaceTask.AsyncResponse(){
+            @Override
+            public void processFinish(List<Marker> places) {
+                markers = places;
+            }
+        });
+        placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
     }
 
     @Override
@@ -490,5 +507,4 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mLocationClient, mListener);
     }
-
 }
