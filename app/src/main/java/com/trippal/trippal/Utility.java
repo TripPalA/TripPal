@@ -149,7 +149,7 @@ public class Utility {
         } else {
             engine.setPitch((float) 1.5);
             engine.setSpeechRate((float) .8);
-//            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         }
 
 

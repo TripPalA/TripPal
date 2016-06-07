@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 /**
@@ -22,15 +23,20 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap>{
     protected Bitmap doInBackground(String... urls) {
         String urldisplay = urls[0];
         Log.v("LOGTAG", urldisplay);
-        Bitmap mIcon11 = null;
+        Bitmap bm = null;
         try {
             InputStream in = new java.net.URL(urldisplay).openStream();
-            mIcon11 = BitmapFactory.decodeStream(in);
+            BufferedInputStream bis = new BufferedInputStream(in);
+            bm = BitmapFactory.decodeStream(bis);
+
+            bis.close();
+            in.close();
+
         } catch (Exception e) {
             Log.e("Error", e.getMessage());
             e.printStackTrace();
         }
-        return mIcon11;
+        return bm;
     }
 
     protected void onPostExecute(Bitmap result) {
