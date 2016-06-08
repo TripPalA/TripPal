@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/map_dest_tv"
-            android:textSize="22dp"/>
+            android:textSize="20dp"/>
 
         <EditText
             android:id="@+id/map_dest_et"
@@ -26,9 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/map_dest_tv"
             android:layout_toRightOf="@id/map_dest_tv"
-            android:ems="6"
+            android:ems="12"
             android:inputType="textCapWords"
-            android:textSize="22dp" />
+            android:textSize="15dp" />
 
         <Button
             android:id="@+id/dest_search_button"

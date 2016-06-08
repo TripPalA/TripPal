@@ -203,10 +203,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             destMarker.remove();
         }
         destMarker = mMap.addMarker(options);
-        if (dest_et == null){
 
-            dest_et.setText(address);
-        }
+        dest_et.setText(address);
+
     }
 
     private void findDirectionAndGo(View view) {
