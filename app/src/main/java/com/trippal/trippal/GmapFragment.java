@@ -27,10 +27,15 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
+
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -75,7 +80,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     List<Polyline> lines;
     List<Marker> markers;
     private Location lastCheckedPoint;
-    private EditText dest_et;
+
 
 
     @Override
@@ -94,7 +99,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             initMap();
             lines = new ArrayList<>();
             markers = new ArrayList<>();
-            dest_et = (EditText) view.findViewById(R.id.map_dest_et);
+//            dest_et = (EditText) view.findViewById(R.id.map_dest_et);
 
             // set location client for listening to map changes
             mLocationClient = new GoogleApiClient.Builder(getActivity())
@@ -105,9 +110,40 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             mLocationClient.connect();
 
+
+            //for auto complete
+            //this line below is altering the format of the layout, but it makes auto complete work
+            getActivity().setContentView(R.layout.fragment_maps);
+
+            final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                    getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment1);
+
+            autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                @Override
+                public void onPlaceSelected(Place place) {
+                    Log.i(LOG_TAG, "Place Selected: " + place.getName());
+                    try {
+                        geoLocate(place.getId());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onError(Status status) {
+                    Log.e(LOG_TAG, "onError: Status = " + status.toString());
+
+                    Toast.makeText(getView().getContext(), "Place selection failed: " + status.getStatusMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+            //end autocomplete
+
+
         } else {
             view = inflater.inflate(R.layout.content_main, container, false);
         }
+
 
         return view;
     }
@@ -131,9 +167,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     }
 
     public void setButtonListners(View view) {
-        Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
-        dest_search_button.setOnClickListener(this);
-
         Button go_button = (Button) view.findViewById(R.id.map_go_button);
         go_button.setOnClickListener(this);
     }
@@ -163,10 +196,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
 
     //     geo location
-    public void geoLocate(View v) throws IOException {
-        hideSoftKeyboard(v);
-
-        String searchString = dest_et.getText().toString();
+    public void geoLocate(String searchString) throws IOException {
+//        hideSoftKeyboard(v);
 
         Geocoder gc = new Geocoder(getActivity());
 
@@ -181,14 +212,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             double lat = address.getLatitude();
             double lng = address.getLongitude();
 
-            addMarker(v, address, lat, lng);
+            addMarker(address, lat, lng);
 
             gotoLocation(lat, lng, 15);
         }
 
     }
 
-    private void addMarker(View v, Address add, double lat, double lng) {
+    private void addMarker(Address add, double lat, double lng) {
         String address = add.getFeatureName() + " " + add.getThoroughfare() + ", " +
                 add.getLocality() + ", " + add.getAdminArea() + " " +
                 add.getPostalCode();
@@ -205,9 +236,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             destMarker.remove();
         }
         destMarker = mMap.addMarker(options);
-
-        dest_et.setText(address);
-
     }
 
     private void findDirectionAndGo(View view) {
@@ -237,7 +265,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         destMarker.remove();
         destMarker = null;
         targetLoc = null;
-        dest_et.setText("");
+//        dest_et.setText("");
         removeLines();
         removeMarkers();
     }
@@ -274,13 +302,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.dest_search_button:
-                try {
-                    geoLocate(view);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
             case R.id.map_go_button:
                 if (!findingPlace){
                     findDirectionAndGo(view);
@@ -351,7 +372,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     }
 
                     Address address = list.get(0);
-                    addMarker(null, address, latLng.latitude, latLng.longitude);
+                    addMarker(address, latLng.latitude, latLng.longitude);
                 }
             });
 
@@ -473,6 +494,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         removeMarkers();
         markers = new ArrayList<>();
         FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), new FetchPlaceTask.AsyncResponse() {
+
             @Override
             public void processFinish(List<Place> places) {
                 Place bestPlace = null;
