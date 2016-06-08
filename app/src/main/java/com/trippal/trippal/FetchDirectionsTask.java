@@ -11,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -134,22 +135,26 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOp
         JSONArray steps = legs.getJSONArray("steps");
 
 
+
         ArrayList<PolylineOptions> polylines = new ArrayList<>();
 
         for (int i = 0; i < steps.length(); i++){
             JSONObject step = steps.getJSONObject(i);
-            JSONObject start_loc_obj = step.getJSONObject("start_location");
-            JSONObject end_loc_obj = step.getJSONObject("end_location");
-            LatLng start_loc = new LatLng(start_loc_obj.getDouble("lat"), start_loc_obj.getDouble("lng"));
-            LatLng end_loc = new LatLng(end_loc_obj.getDouble("lat"), end_loc_obj.getDouble("lng"));
+
+            JSONObject polyline_obj = step.getJSONObject("polyline");
+            String encodedPointString = polyline_obj.getString("points");
+
+            List<LatLng> list = PolyUtil.decode(encodedPointString);
+
             PolylineOptions lineOption = new PolylineOptions()
-                    .color(Color.CYAN)
-                    .add(start_loc)
-                    .add(end_loc);
+                    .color(Color.CYAN);
+
+            for (LatLng latLng: list){
+                lineOption.add(latLng);
+            }
 
             polylines.add(lineOption);
         }
-
 
         return polylines;
     }
@@ -164,6 +169,7 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOp
             }
 
         }
+        // this saves lines to MainActivity
         delegate.processFinish(lines);
     }
 
