@@ -8,39 +8,38 @@ import android.widget.ImageView;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Created by samskim on 6/7/16.
  */
+//reference: http://android--code.blogspot.com/2015/08/android-imageview-set-image-from-url.html
 public class DownloadImageTask extends AsyncTask<String, Void, Bitmap>{
 
-    ImageView bmImage;
+    private final String LOG_TAG = DownloadImageTask.class.getSimpleName();
+
+    ImageView imageView;
 
     public DownloadImageTask(ImageView bmImage) {
-        this.bmImage = bmImage;
+        this.imageView = bmImage;
     }
 
     protected Bitmap doInBackground(String... urls) {
-        String urldisplay = urls[0];
-        Log.v("LOGTAG", urldisplay);
-        Bitmap bm = null;
-        try {
-            InputStream in = new java.net.URL(urldisplay).openStream();
-            BufferedInputStream bis = new BufferedInputStream(in);
-            bm = BitmapFactory.decodeStream(bis);
-
-            bis.close();
-            in.close();
-
-        } catch (Exception e) {
-            Log.e("Error", e.getMessage());
+        String urlOfImage = urls[0];
+        Bitmap logo = null;
+        try{
+            InputStream is = new URL(urlOfImage).openStream();
+            logo = BitmapFactory.decodeStream(is);
+        }catch(Exception e){ // Catch the download exception
             e.printStackTrace();
         }
-        return bm;
+        return logo;
     }
 
     protected void onPostExecute(Bitmap result) {
-        bmImage.setImageBitmap(result);
+        Log.v(LOG_TAG, "IMAGEDOWNLOAD: " + result.toString() );
+        imageView.setImageBitmap(result);
     }
 
 }

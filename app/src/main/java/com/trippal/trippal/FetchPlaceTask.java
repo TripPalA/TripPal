@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -233,27 +234,29 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
                     public CharSequence getAttributions() {
 
                         try {
-                            JSONArray photos = obj.getJSONArray("photos");
-                            if (photos != null && photos.length() > 0){
-                                JSONObject photoObj = photos.getJSONObject(0);
-                                JSONArray html_attributions = photoObj.getJSONArray("html_attributions");
-                                if (html_attributions != null && html_attributions.length() > 0){
-                                    String anchortag = html_attributions.get(0).toString();
-                                    Pattern p = Pattern.compile("<a href=(\\\"[^\\\"]*\\\")[^<]*</a>");
-                                    Matcher m = p.matcher(anchortag);
-                                    String url = null;
-                                    if (m.find()) {
-                                        url = m.group(1); // this variable should contain the link URL
-                                        url = url.replaceAll("\"", "");
-
-                                    }
-                                    return url;
-                                }else{
-                                    return null;
-                                }
-                            }else{
-                                return null;
-                            }
+                            String iconUrlStr = obj.getString("icon");
+                            return iconUrlStr;
+//                            JSONArray photos = obj.getJSONArray("photos");
+//                            if (photos != null && photos.length() > 0){
+//                                JSONObject photoObj = photos.getJSONObject(0);
+//                                JSONArray html_attributions = photoObj.getJSONArray("html_attributions");
+//                                if (html_attributions != null && html_attributions.length() > 0){
+//                                    String anchortag = html_attributions.get(0).toString();
+//                                    Pattern p = Pattern.compile("<a href=(\\\"[^\\\"]*\\\")[^<]*</a>");
+//                                    Matcher m = p.matcher(anchortag);
+//                                    String url = null;
+//                                    if (m.find()) {
+//                                        url = m.group(1); // this variable should contain the link URL
+//                                        url = url.replaceAll("\"", "");
+//
+//                                    }
+//                                    return url;
+//                                }else{
+//                                    return null;
+//                                }
+//                            }else{
+//                                return null;
+//                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -306,6 +309,7 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
                 // Creating a marker
                 MarkerOptions markerOptions = new MarkerOptions()
                         .position(latLng)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_maps_store_mall_directory))
                         .title(p.getName().toString())
                         .snippet(address + "%%" + rating + "%%" + imageUrl);
 

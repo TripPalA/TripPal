@@ -68,6 +68,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     private Marker originMarker;
     private Marker destMarker;
+    private Marker currentPosMarker;
     private GoogleApiClient mLocationClient;
     private LocationListener mListener;
     private boolean findingPlace = false;
@@ -344,7 +345,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     if (snippets.length > 1){
                         tvSnippet.setText(snippets[1]);
                         if (snippets.length > 2 && snippets[2] != null && !snippets[2].isEmpty()){
-                            new DownloadImageTask(imageView).execute(snippets[2]);
+//                            new DownloadImageTask(imageView).execute(snippets[2]);
                         }
                     }
 
@@ -452,6 +453,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+
+                    changeCurrentPosMarker(latLng);
+
                     mMap.animateCamera(update);
 
                     // fetch for places only if moved distance is greater than 3200 meters (2 miles)
@@ -470,8 +474,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         LocationRequest request = LocationRequest.create();
         request.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
-        // updates the map every 10 seconds, and must move more than 20 meters
-        request.setInterval(10000);
+        // updates the map every 5 seconds, and must move more than 20 meters
+        request.setInterval(5000);
 //        request.setSmallestDisplacement(20);
 
         Utility.checkPermission(getActivity());
@@ -489,6 +493,17 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             }
         });
         placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+    }
+
+    public void changeCurrentPosMarker(LatLng latLng){
+        // add marker
+        if (currentPosMarker != null){
+            currentPosMarker.remove();
+        }
+        MarkerOptions options = new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image_lens))
+                .position(latLng);
+        currentPosMarker = mMap.addMarker(options);
     }
 
     @Override

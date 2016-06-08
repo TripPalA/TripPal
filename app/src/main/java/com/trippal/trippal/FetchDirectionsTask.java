@@ -140,16 +140,11 @@ public class FetchDirectionsTask extends AsyncTask<String, Void, List<PolylineOp
 
         for (int i = 0; i < steps.length(); i++){
             JSONObject step = steps.getJSONObject(i);
-            JSONObject start_loc_obj = step.getJSONObject("start_location");
-            JSONObject end_loc_obj = step.getJSONObject("end_location");
 
             JSONObject polyline_obj = step.getJSONObject("polyline");
             String encodedPointString = polyline_obj.getString("points");
 
             List<LatLng> list = PolyUtil.decode(encodedPointString);
-
-//            LatLng start_loc = new LatLng(start_loc_obj.getDouble("lat"), start_loc_obj.getDouble("lng"));
-//            LatLng end_loc = new LatLng(end_loc_obj.getDouble("lat"), end_loc_obj.getDouble("lng"));
 
             PolylineOptions lineOption = new PolylineOptions()
                     .color(Color.CYAN);
