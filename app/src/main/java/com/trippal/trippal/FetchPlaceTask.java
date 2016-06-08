@@ -10,9 +10,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,18 +36,16 @@ import java.util.regex.Pattern;
 public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
 
     public interface AsyncResponse{
-        void processFinish(List<Marker> markers);
+        void processFinish(List<Place> markers);
     }
 
     public AsyncResponse delegate = null;
 
-    private GoogleMap mMap;
     private Activity activity;
     private final String LOG_TAG = FetchPlaceTask.class.getSimpleName();
 
-    public FetchPlaceTask(Activity activity, GoogleMap mMap, AsyncResponse delegate) {
+    public FetchPlaceTask(Activity activity, AsyncResponse delegate) {
         this.activity = activity;
-        this.mMap = mMap;
         this.delegate = delegate;
     }
 
@@ -130,7 +126,6 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
                 }
             }
         }
-
 
         return parseJsonPlace(placesJsonString);
     }
@@ -286,40 +281,12 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
     }
 
     @Override
-    protected void onPostExecute(List<Place> place) {
-        super.onPostExecute(place);
+    protected void onPostExecute(List<Place> places) {
+        super.onPostExecute(places);
 
-        List<Marker> markers = new ArrayList<>();
+        Log.v(LOG_TAG, "places found: " + String.valueOf(places.size()));
 
-        //todo: do something with places found
-        Log.v(LOG_TAG, "places found: " + String.valueOf(place.size()));
-
-        if (place != null) {
-            for (Place p : place) {
-                LatLng latLng = p.getLatLng();
-
-                String address = p.getAddress().toString();
-                String rating = "Rating: " + p.getRating();
-
-                String imageUrl = null;
-                if (p.getAttributions() != null){
-                    imageUrl = p.getAttributions().toString();
-                }
-
-                // Creating a marker
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(latLng)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_maps_store_mall_directory))
-                        .title(p.getName().toString())
-                        .snippet(address + "%%" + rating + "%%" + imageUrl);
-
-                // Placing a marker on the touched position
-                markers.add(mMap.addMarker(markerOptions));
-            }
-        }
-
-        delegate.processFinish(markers);
-
+        delegate.processFinish(places);
 
     }
 }
