@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -469,10 +471,46 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     public void fetchPlaces(LatLng latLng) {
         removeMarkers();
-        FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), mMap, new FetchPlaceTask.AsyncResponse() {
+        markers = new ArrayList<>();
+        FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), new FetchPlaceTask.AsyncResponse() {
             @Override
-            public void processFinish(List<Marker> places) {
-                markers = places;
+            public void processFinish(List<Place> places) {
+                Place bestPlace = null;
+                double highestRating = 0;
+
+                if (places != null) {
+                    for (Place p : places) {
+
+                        if (p.getRating() > highestRating){
+                            bestPlace = p;
+                            highestRating = p.getRating();
+                        }
+
+                        LatLng latLng = p.getLatLng();
+
+                        String address = p.getAddress().toString();
+                        String rating = "Rating: " + p.getRating();
+                        String imageUrl = null;
+                        if (p.getAttributions() != null){
+                            imageUrl = p.getAttributions().toString();
+                        }
+
+                        // Creating a marker
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(latLng)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_maps_store_mall_directory))
+                                .title(p.getName().toString())
+                                .snippet(address + "%%" + rating + "%%" + imageUrl);
+
+                        // Placing a marker on the touched position
+                        markers.add(mMap.addMarker(markerOptions));
+                    }
+
+                    String placeFeature = bestPlace.getName() + ", Type: " + bestPlace.getPlaceTypes() + ", Rating: " + bestPlace.getRating();
+                    Toast.makeText(getActivity(), placeFeature , Toast.LENGTH_LONG);
+                    Utility.tts(getActivity(), placeFeature);
+                }
+
             }
         });
         placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
