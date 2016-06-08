@@ -13,6 +13,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <android.support.v7.widget.CardView
+            android:id="@+id/map_origin_et"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+           >
+
+            <fragment
+                android:id="@+id/place_autocomplete_fragment1"
+                android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
         <TextView
             android:id="@+id/map_origin_tv"
             android:layout_width="wrap_content"
@@ -20,7 +35,7 @@
             android:text="@string/map_origin_tv"
             android:textSize="22dp" />
 
-        <EditText
+        <!--<EditText
             android:id="@+id/map_origin_et"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +43,7 @@
             android:layout_toRightOf="@id/map_origin_tv"
             android:ems="6"
             android:inputType="textCapWords"
-            android:textSize="22dp" />
+            android:textSize="22dp" />-->
 
         <Button
             android:id="@+id/origin_search_button"

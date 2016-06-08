@@ -28,9 +28,13 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -107,6 +111,31 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             view = inflater.inflate(R.layout.content_main, container, false);
         }
 
+
+        //for auto complete
+        //this line below is altering the format of the layout, but it makes auto complete work
+        getActivity().setContentView(R.layout.fragment_maps);
+
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment1);
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                Log.i(LOG_TAG, "Place Selected: " + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.e(LOG_TAG, "onError: Status = " + status.toString());
+
+                Toast.makeText(getView().getContext(), "Place selection failed: " + status.getStatusMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        //end autocomplete
+
+
         return view;
     }
 
@@ -129,8 +158,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     }
 
     public void setButtonListners(View view) {
-        Button origin_search_button = (Button) view.findViewById(R.id.origin_search_button);
-        origin_search_button.setOnClickListener(this);
+        //Button origin_search_button = (Button) view.findViewById(R.id.origin_search_button);
+        //origin_search_button.setOnClickListener(this);
 
         Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
         dest_search_button.setOnClickListener(this);
@@ -210,11 +239,11 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 //                    .icon(BitmapDescriptorFactory.fromResource(R.))
 
         if (v == null) {
-            if (originMarker == null){
+            if (originMarker == null) {
                 originMarker = mMap.addMarker(options);
-            }else if (destMarker == null){
+            } else if (destMarker == null) {
                 destMarker = mMap.addMarker(options);
-            }else{
+            } else {
                 removeEverything();
                 originMarker = mMap.addMarker(options);
             }
@@ -261,15 +290,15 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         destMarker = null;
     }
 
-    private void removeLines(){
-        if (lines != null && !lines.isEmpty()){
-            for (Polyline line: lines) line.remove();
+    private void removeLines() {
+        if (lines != null && !lines.isEmpty()) {
+            for (Polyline line : lines) line.remove();
         }
     }
 
-    private void removeMarkers(){
-        if (markers != null && !markers.isEmpty()){
-            for (Marker marker: markers) marker.remove();
+    private void removeMarkers() {
+        if (markers != null && !markers.isEmpty()) {
+            for (Marker marker : markers) marker.remove();
         }
     }
 
@@ -329,7 +358,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 public View getInfoContents(Marker marker) {
                     View v = getActivity().getLayoutInflater().inflate(R.layout.map_info_window, null);
                     ImageView imageView = (ImageView) v.findViewById(R.id.info_image_iv);
-                    TextView tvTitle= (TextView) v.findViewById(R.id.info_title_tv);
+                    TextView tvTitle = (TextView) v.findViewById(R.id.info_title_tv);
                     TextView tvAddress = (TextView) v.findViewById(R.id.info_address_tv);
                     TextView tvRating = (TextView) v.findViewById(R.id.info_rating_tv);
                     TextView tvSnippet = (TextView) v.findViewById(R.id.info_snipppet_tv);
@@ -341,9 +370,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
                     tvAddress.setText(snippets[0]);
 
-                    if (snippets.length > 1){
+                    if (snippets.length > 1) {
                         tvSnippet.setText(snippets[1]);
-                        if (snippets.length > 2 && snippets[2] != null && !snippets[2].isEmpty()){
+                        if (snippets.length > 2 && snippets[2] != null && !snippets[2].isEmpty()) {
                             new DownloadImageTask(imageView).execute(snippets[2]);
                         }
                     }
@@ -455,7 +484,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     mMap.animateCamera(update);
 
                     // fetch for places only if moved distance is greater than 3200 meters (2 miles)
-                    if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > 3200){
+                    if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > 3200) {
 
                         fetchPlaces(latLng);
                         Toast.makeText(getActivity(), "Fetching places", Toast.LENGTH_SHORT);
@@ -480,9 +509,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         );
     }
 
-    public void fetchPlaces(LatLng latLng){
+    public void fetchPlaces(LatLng latLng) {
         removeMarkers();
-        FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), mMap, new FetchPlaceTask.AsyncResponse(){
+        FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), mMap, new FetchPlaceTask.AsyncResponse() {
             @Override
             public void processFinish(List<Marker> places) {
                 markers = places;
