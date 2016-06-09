@@ -308,6 +308,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     private void findDirectionAndGo(View view) {
         removeLines();
+        autocomplete_lv.setVisibility(View.GONE);
         placeInfo_tv.setText("fetching places info..");
         Utility.tts(getActivity(), "Let's go");
         FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap, new FetchDirectionsTask.AsyncResponse() {
@@ -374,6 +375,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             case R.id.dest_search_button:
                 try {
                     geoLocate(view);
+                    autocomplete_lv.setVisibility(View.GONE);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
