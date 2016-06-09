@@ -22,7 +22,6 @@ public class MyPlace {
     private final Context mContext;
 
     public MyPlace(Context context) {
-
         mContext = context;
         init();
     }
