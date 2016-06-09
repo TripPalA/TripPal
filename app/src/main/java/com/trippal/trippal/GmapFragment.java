@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -131,6 +133,30 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     }
 
     public void setButtonListners(View view) {
+
+
+        EditText textView = (EditText) view.findViewById(R.id.map_dest_et);
+
+        textView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                FetchAutoCompleteTask autoComplete = new FetchAutoCompleteTask(getActivity());
+                autoComplete.execute(s.toString());
+              //  Log.v(LOG_TAG, s.toString());
+
+            }
+        });
+
         Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
         dest_search_button.setOnClickListener(this);
 
