@@ -74,7 +74,7 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
 
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
 //                .appendQueryParameter(RADIUS, Utility.getRadius(activity))//in km
-                .appendQueryParameter(RADIUS, "1600") // set radius to 1 mile
+                .appendQueryParameter(RADIUS, "3200") // set radius to 2 miles
 
                 .appendQueryParameter(CURR_LOCATION, coord.latitude + "," + coord.longitude)
                 .appendQueryParameter("type", "point_of_interest")

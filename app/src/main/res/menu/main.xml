@@ -10,5 +10,6 @@
     <item
         android:id="@+id/currentLocation"
         android:title="@string/current_location"
+        android:icon="@drawable/ic_device_gps_fixed"
         app:showAsAction="always"/>
 </menu>

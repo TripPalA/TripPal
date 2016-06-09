@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
@@ -151,8 +152,38 @@ public class Utility {
             engine.setSpeechRate((float) .8);
             engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         }
+    }
 
+    public static String getPlaceInfoStr(Place place, LatLng currentPos){
+        String name = (String) place.getName();
+        double rating = roundToHundredth(place.getRating());
+        Location location = convertLatLngToLocation(place.getLatLng());
+        Location currentLoc = convertLatLngToLocation(currentPos);
+        double distanceInMeters = location.distanceTo(currentLoc);
+        double distanceInFeet = convertMetersToMiles(distanceInMeters);
 
+        String placeFeature = name + ",\nRating: " + rating +
+                ",\nDistance: " + distanceInFeet + " miles";
+        return placeFeature;
+    }
+
+    public static double roundToHundredth(double d){
+        return Math.round(d * 100.0) / 100.0;
+    }
+
+    public static double roundToTenth(double d){
+        return Math.round(d * 10.0) / 10.0;
+    }
+
+    public static Location convertLatLngToLocation(LatLng position){
+        Location location = new Location("");
+        location.setLatitude(position.latitude);
+        location.setLongitude(position.longitude);
+        return location;
+    }
+
+    public static double convertMetersToMiles(double meter){
+        return roundToTenth(meter * 0.000621371);
     }
 
 }
