@@ -252,7 +252,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         }
         destMarker = mMap.addMarker(options);
 
-        dest_et.setText(address);
+        // If marker was added by long click listener (instead of user typing it in), update the dest_et
+        if (v == null) dest_et.setText(address);
 
     }
 

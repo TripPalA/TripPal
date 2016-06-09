@@ -8,8 +8,6 @@
     android:weightSum="1"
     tools:context=".MainActivity">
 
-
-
     <RelativeLayout
         android:id="@+id/map_dest_rl"
         android:layout_width="match_parent"
@@ -22,22 +20,25 @@
             android:text="@string/map_dest_tv"
             android:textSize="20dp" />
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/map_dest_cardView"
+        <EditText
+            android:id="@+id/map_dest_et"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            >
+            android:layout_alignBaseline="@id/map_dest_tv"
+            android:layout_toRightOf="@id/map_dest_tv"
+            android:ems="12"
+            android:inputType="textCapWords"
+            android:textSize="15dp" />
 
-            <fragment
-                android:id="@+id/place_autocomplete_fragment1"
-                android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </android.support.v7.widget.CardView>
-
+        <Button
+            android:id="@+id/dest_search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/map_dest_tv"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:onClick="geoLocate"
+            android:text="@string/dest_button_search" />
 
     </RelativeLayout>
 
