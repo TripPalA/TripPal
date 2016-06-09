@@ -260,6 +260,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private void findDirectionAndGo(View view) {
         removeLines();
         placeInfo_tv.setText("fetching places info..");
+        Utility.tts(getActivity(), "Let's go");
         FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap, new FetchDirectionsTask.AsyncResponse() {
             @Override
             public void processFinish(List<Polyline> result) {
@@ -322,15 +323,12 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.dest_search_button:
-                if (destMarker != null){
-                    try {
-                        geoLocate(view);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    geoLocate(view);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 break;
-
             // on go button, toggle go button icon and invisibility of buttons
             case R.id.map_go_button:
                 if (!findingPlace){
