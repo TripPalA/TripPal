@@ -30,6 +30,15 @@
             android:inputType="textCapWords"
             android:textSize="15dp" />
 
+        <ListView
+            android:id="@+id/autocomplete_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/map_dest_et"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            />
+
         <Button
             android:id="@+id/dest_search_button"
             android:layout_width="wrap_content"
