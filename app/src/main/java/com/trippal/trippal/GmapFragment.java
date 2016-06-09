@@ -299,7 +299,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         }
         destMarker = mMap.addMarker(options);
 
-        dest_et.setText(address);
+        // if came from longButtonClick, update editText
+        if (v == null)
+            dest_et.setText(address);
 
     }
 
