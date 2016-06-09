@@ -91,6 +91,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private int places_page;
     private List<Place> places;
     private MyPlace myPlace;
+    private boolean animateToCurrentLocOnListen;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -133,6 +134,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         switch (id) {
             case R.id.currentLocation:
                 showCurrentLocation(true);
+                animateToCurrentLocOnListen = true;
                 break;
         }
 
@@ -184,6 +186,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private void initMapElements(View view) {
         myPlace = new MyPlace(getActivity());
         findingPlace = false;
+        animateToCurrentLocOnListen = true;
         init = false;
         mute = true;
         places_page = 0;
@@ -231,7 +234,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             gotoLocation(lat, lng, 15);
         }
-
     }
 
     private void addMarker(View v, Address add, double lat, double lng) {
@@ -434,9 +436,24 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 }
             });
 
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+
+                }
+            });
+
+            mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+                @Override
+                public void onInfoWindowClose(Marker marker) {
+                    animateToCurrentLocOnListen = true;
+                }
+            });
+
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
+                    animateToCurrentLocOnListen = false;
                     return false;
                 }
             });
@@ -466,7 +483,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
                     Address address = list.get(0);
                     marker.setTitle(address.getLocality());
-                    marker.setSnippet(address.getCountryName());
+                    marker.setSnippet(address.toString());
                     marker.showInfoWindow();
                 }
             });
@@ -474,6 +491,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     }
 
+    // if animate true, animate; if false, move instantly
     private Location showCurrentLocation(boolean animate) {
         Utility.checkPermission(getActivity());
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
@@ -520,11 +538,13 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                                         location.getLongitude(), Toast.LENGTH_SHORT).show();
 
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-
                         changeCurrentPosMarker(latLng);
 
-                        mMap.animateCamera(update);
+                        if (animateToCurrentLocOnListen){
+                            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                            mMap.animateCamera(update);
+                        }
+
 
 
                         // returns the calculated value in meters
