@@ -3,6 +3,7 @@ package com.trippal.trippal;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -11,11 +12,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
@@ -31,6 +34,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,6 +48,7 @@ import com.google.android.gms.maps.model.Polyline;
 
 import java.io.IOException;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,35 +75,44 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private Marker currentPosMarker;
     private GoogleApiClient mLocationClient;
     private LocationListener mListener;
-    private boolean findingPlace = false;
-    private boolean init = false;
-    List<Polyline> lines;
-    List<Marker> markers;
+
+    private boolean findingPlace;
+    private boolean init;
+    private List<Polyline> lines;
+    private List<Marker> markers;
     private Location lastCheckedPoint;
     private EditText dest_et;
-
+    private FloatingActionButton go_button;
+    private FloatingActionButton next_fbutton;
+    private FloatingActionButton mute_fbutton;
+    private FloatingActionButton save_fbutton;
+    private TextView placeInfo_tv;
+    private boolean mute;
+    private int places_page;
+    private List<Place> places;
+    private MyPlace myPlace;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = null;
+        View rootView = null;
 
         setHasOptionsMenu(true);
 
         if (servicesOK()) {
-            view = inflater.inflate(R.layout.fragment_maps, container, false);
+            rootView = inflater.inflate(R.layout.fragment_maps, container, false);
 
             // set buttons on listener
-            setButtonListners(view);
+            setButtonListners(rootView);
 
             // initialize map
             initMap();
-            lines = new ArrayList<>();
-            markers = new ArrayList<>();
-            dest_et = (EditText) view.findViewById(R.id.map_dest_et);
+            initMapElements(rootView);
 
             // set location client for listening to map changes
             mLocationClient = new GoogleApiClient.Builder(getActivity())
                     .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .addApi(Places.PLACE_DETECTION_API)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
@@ -106,10 +120,10 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             mLocationClient.connect();
 
         } else {
-            view = inflater.inflate(R.layout.content_main, container, false);
+            rootView = inflater.inflate(R.layout.content_main, container, false);
         }
 
-        return view;
+        return rootView;
     }
 
     @Override
@@ -118,7 +132,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
         switch (id) {
             case R.id.currentLocation:
-                showCurrentLocation();
+                showCurrentLocation(true);
                 break;
         }
 
@@ -128,14 +142,6 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    public void setButtonListners(View view) {
-        Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
-        dest_search_button.setOnClickListener(this);
-
-        Button go_button = (Button) view.findViewById(R.id.map_go_button);
-        go_button.setOnClickListener(this);
     }
 
     // checks if map service is connected
@@ -155,12 +161,52 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         return false;
     }
 
-
     private void initMap() {
         MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Utility.checkPermission(getActivity());
     }
 
+    public void setButtonListners(View view) {
+        Button dest_search_button = (Button) view.findViewById(R.id.dest_search_button);
+        go_button = (FloatingActionButton) view.findViewById(R.id.map_go_button);
+        next_fbutton = (FloatingActionButton) view.findViewById(R.id.map_next_fbutton);
+        mute_fbutton = (FloatingActionButton) view.findViewById(R.id.map_mute_fbutton);
+        save_fbutton = (FloatingActionButton) view.findViewById(R.id.map_save_fbutton);
+
+        go_button.setOnClickListener(this);
+        dest_search_button.setOnClickListener(this);
+        next_fbutton.setOnClickListener(this);
+        mute_fbutton.setOnClickListener(this);
+        save_fbutton.setOnClickListener(this);
+    }
+
+    private void initMapElements(View view) {
+        myPlace = new MyPlace(getActivity());
+        findingPlace = false;
+        init = false;
+        mute = true;
+        places_page = 0;
+        lines = new ArrayList<>();
+        markers = new ArrayList<>();
+        dest_et = (EditText) view.findViewById(R.id.map_dest_et);
+        placeInfo_tv = (TextView) view.findViewById(R.id.map_placeInfo_tv);
+    }
+
+    // toggle floating action buttons
+    private void toggleVisibility(boolean visible){
+        if (visible == true){
+            next_fbutton.setVisibility(View.VISIBLE);
+            mute_fbutton.setVisibility(View.VISIBLE);
+            save_fbutton.setVisibility(View.VISIBLE);
+            placeInfo_tv.setVisibility(View.VISIBLE);
+        }else{
+            next_fbutton.setVisibility(View.INVISIBLE);
+            mute_fbutton.setVisibility(View.INVISIBLE);
+            save_fbutton.setVisibility(View.INVISIBLE);
+            placeInfo_tv.setVisibility(View.GONE);
+        }
+    }
 
     //     geo location
     public void geoLocate(View v) throws IOException {
@@ -210,8 +256,12 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     }
 
+
+
     private void findDirectionAndGo(View view) {
         removeLines();
+        placeInfo_tv.setText("fetching places info..");
+        Utility.tts(getActivity(), "Let's go");
         FetchDirectionsTask dirTask = new FetchDirectionsTask(getActivity(), mMap, new FetchDirectionsTask.AsyncResponse() {
             @Override
             public void processFinish(List<Polyline> result) {
@@ -219,14 +269,13 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             }
         });
 
-        Location currentLoc = showCurrentLocation();
+        // save current location and animate the camera
+        Location currentLoc = showCurrentLocation(true);
 
         LatLng originPos = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
         LatLng destPos = destMarker.getPosition();
 
-        targetLoc = new Location("");
-        targetLoc.setLatitude(destPos.latitude);
-        targetLoc.setLongitude(destPos.longitude);
+        targetLoc = Utility.convertLatLngToLocation(destPos);
 
         String origin = originPos.latitude + "," + originPos.longitude;
         String dest = destPos.latitude + "," + destPos.longitude;
@@ -281,18 +330,48 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                     e.printStackTrace();
                 }
                 break;
+            // on go button, toggle go button icon and invisibility of buttons
             case R.id.map_go_button:
                 if (!findingPlace){
                     findDirectionAndGo(view);
                     findingPlace = true;
-                    Button go_button = (Button) view;
-                    go_button.setText("End Trip");
+                    go_button.setImageResource(R.drawable.ic_navigation_cancel);
+                    toggleVisibility(true);
                 }else{
                     findingPlace = false;
-                    Button go_button = (Button) view;
-                    go_button.setText("Let's go!");
+                    go_button.setImageResource(R.drawable.ic_maps_directions_car);
                     removeEverything();
+                    toggleVisibility(false);
                 }
+                break;
+
+            // get next page in places list
+            case R.id.map_next_fbutton:
+                if (places != null && places.size() > 0){
+                    Place place = places.get(places_page++ % places.size());
+                    updatePlaceInfo(place);
+                }
+                break;
+
+            // toggle mute
+            case R.id.map_mute_fbutton:
+                if (!mute){
+                    Toast.makeText(getActivity(), "Muted", Toast.LENGTH_SHORT).show();
+                    mute = true;
+                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_off);
+                }else{
+                    Toast.makeText(getActivity(), "Unmuted", Toast.LENGTH_SHORT).show();
+                    mute = false;
+                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_down);
+                }
+                break;
+
+            // save current place
+            case R.id.map_save_fbutton:
+                Place placeToSave = places.get((places_page-1) % places.size());
+                Log.v(LOG_TAG, "Current Place Page: " + places_page);
+                myPlace.savePlace(placeToSave);
+                Toast.makeText(getActivity(), "Saving " + placeToSave.getName(), Toast.LENGTH_LONG).show();
                 break;
         }
     }
@@ -395,7 +474,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
     }
 
-    private Location showCurrentLocation() {
+    private Location showCurrentLocation(boolean animate) {
         Utility.checkPermission(getActivity());
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
         if (currentLocation == null) {
@@ -407,7 +486,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             );
             changeCurrentPosMarker(latLng);
             CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-            mMap.animateCamera(update);
+            if (animate) mMap.animateCamera(update);
+            else mMap.moveCamera(update);
         }
         return currentLocation;
     }
@@ -416,9 +496,10 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     public void onConnected(@Nullable Bundle bundle) {
         Toast.makeText(getActivity(), "Ready to Map", Toast.LENGTH_SHORT).show();
 
+        // show current location in the beginning of the program
         if (!init) {
             init = true;
-            showCurrentLocation();
+            showCurrentLocation(false);
         }
 
         mListener = new LocationListener() {
@@ -445,8 +526,11 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
                         mMap.animateCamera(update);
 
-                        // fetch for places only if moved distance is greater than 3200 meters (2 miles)
-                        if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > 3200) {
+
+                        // returns the calculated value in meters
+                        double radius = Double.parseDouble(Utility.getRadius(getActivity()));
+
+                        if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > radius * 1.5) {
                             fetchPlaces(latLng);
                             Toast.makeText(getActivity(), "Fetching places", Toast.LENGTH_SHORT);
                             lastCheckedPoint = location;
@@ -474,46 +558,50 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         markers = new ArrayList<>();
         FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), new FetchPlaceTask.AsyncResponse() {
             @Override
-            public void processFinish(List<Place> places) {
-                Place bestPlace = null;
-                double highestRating = 0;
-
-                if (places != null) {
-                    for (Place p : places) {
-
-                        if (p.getRating() > highestRating){
-                            bestPlace = p;
-                            highestRating = p.getRating();
-                        }
-
-                        LatLng latLng = p.getLatLng();
-
-                        String address = p.getAddress().toString();
-                        String rating = "Rating: " + p.getRating();
-                        String imageUrl = null;
-                        if (p.getAttributions() != null){
-                            imageUrl = p.getAttributions().toString();
-                        }
-
-                        // Creating a marker
-                        MarkerOptions markerOptions = new MarkerOptions()
-                                .position(latLng)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_maps_store_mall_directory))
-                                .title(p.getName().toString())
-                                .snippet(address + "%%" + rating + "%%" + imageUrl);
-
-                        // Placing a marker on the touched position
-                        markers.add(mMap.addMarker(markerOptions));
-                    }
-
-                    String placeFeature = bestPlace.getName() + ", Type: " + bestPlace.getPlaceTypes() + ", Rating: " + bestPlace.getRating();
-                    Toast.makeText(getActivity(), placeFeature , Toast.LENGTH_LONG);
-                    Utility.tts(getActivity(), placeFeature);
+            public void processFinish(List<Place> result) {
+                if (result != null) {
+                    places_page = 0;
+                    places = result;
+                    AddMarkerToPlaces(result);
+                    Place place = result.get(places_page++);
+                    String placeFeature = Utility.getPlaceInfoStr(place, currentPosMarker.getPosition());
+                    placeInfo_tv.setText(placeFeature);
                 }
-
             }
         });
-        placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+        placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude), Utility.getRadius(getActivity()));
+    }
+
+    public void updatePlaceInfo(Place place){
+        String placeFeature = Utility.getPlaceInfoStr(place, currentPosMarker.getPosition());
+        placeInfo_tv.setText(placeFeature);
+        if (!mute)
+            Utility.tts(getActivity(), placeFeature);
+    }
+
+    public void AddMarkerToPlaces(List<Place> result){
+
+        for (Place p : result) {
+
+            LatLng latLng = p.getLatLng();
+
+            String address = p.getAddress().toString();
+            String rating = "Rating: " + p.getRating();
+            String imageUrl = null;
+            if (p.getAttributions() != null){
+                imageUrl = p.getAttributions().toString();
+            }
+
+            // Creating a marker
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_maps_store_mall_directory))
+                    .title(p.getName().toString())
+                    .snippet(address + "%%" + rating + "%%" + imageUrl);
+
+            // Placing a marker on the touched position
+            markers.add(mMap.addMarker(markerOptions));
+        }
     }
 
     public void changeCurrentPosMarker(LatLng latLng) {
