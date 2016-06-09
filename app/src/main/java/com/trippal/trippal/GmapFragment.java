@@ -164,6 +164,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private void initMap() {
         MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Utility.checkPermission(getActivity());
     }
 
     public void setButtonListners(View view) {
@@ -184,7 +185,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         myPlace = new MyPlace(getActivity());
         findingPlace = false;
         init = false;
-        mute = false;
+        mute = true;
         places_page = 0;
         lines = new ArrayList<>();
         markers = new ArrayList<>();
@@ -357,11 +358,11 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 if (!mute){
                     Toast.makeText(getActivity(), "Muted", Toast.LENGTH_SHORT).show();
                     mute = true;
-                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_down);
+                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_off);
                 }else{
                     Toast.makeText(getActivity(), "Unmuted", Toast.LENGTH_SHORT).show();
                     mute = false;
-                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_off);
+                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_down);
                 }
                 break;
 
@@ -474,8 +475,8 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     }
 
     private Location showCurrentLocation(boolean animate) {
-        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
         Utility.checkPermission(getActivity());
+        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
         if (currentLocation == null) {
             Toast.makeText(getActivity(), "Couldn't connect!", Toast.LENGTH_SHORT).show();
         } else {
@@ -525,8 +526,11 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
                         mMap.animateCamera(update);
 
-                        // fetch for places only if moved distance is greater than 3200 meters (3 miles)
-                        if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > 4800) {
+
+                        // returns the calculated value in meters
+                        double radius = Double.parseDouble(Utility.getRadius(getActivity()));
+
+                        if (lastCheckedPoint == null || location.distanceTo(lastCheckedPoint) > radius * 1.5) {
                             fetchPlaces(latLng);
                             Toast.makeText(getActivity(), "Fetching places", Toast.LENGTH_SHORT);
                             lastCheckedPoint = location;
@@ -555,17 +559,17 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         FetchPlaceTask placeTask = new FetchPlaceTask(getActivity(), new FetchPlaceTask.AsyncResponse() {
             @Override
             public void processFinish(List<Place> result) {
-
                 if (result != null) {
                     places_page = 0;
                     places = result;
                     AddMarkerToPlaces(result);
-                    updatePlaceInfo(result.get(places_page++));
-
+                    Place place = result.get(places_page++);
+                    String placeFeature = Utility.getPlaceInfoStr(place, currentPosMarker.getPosition());
+                    placeInfo_tv.setText(placeFeature);
                 }
             }
         });
-        placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+        placeTask.execute(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude), Utility.getRadius(getActivity()));
     }
 
     public void updatePlaceInfo(Place place){

@@ -55,14 +55,14 @@ public class FetchPlaceTask extends AsyncTask<String, Void, List<Place>> {
         BufferedReader reader = null;
 
         String placesJsonString = null;
-
+        int radius = 3200;
         LatLng coord;
         if (params.length == 0) {
             coord = new LatLng(34.064430, -118161303);
         } else {
             coord = new LatLng(Double.parseDouble(params[0]), Double.parseDouble(params[1]));
+            radius = (int) (Double.parseDouble(params[2]));
         }
-
 
         final String FORMAT = "json";
         final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/" + FORMAT + "?";
