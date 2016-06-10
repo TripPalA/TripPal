@@ -602,7 +602,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             @Override
             public void onLocationChanged(Location location) {
 
-                if (findingPlace && targetLoc != null) {
+                if (findingPlace) {
 
                     // if current distance to target is less than 10 meters, end the trip
                     if (location.distanceTo(targetLoc) < 10) {

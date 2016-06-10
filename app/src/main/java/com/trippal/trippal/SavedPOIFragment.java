@@ -94,89 +94,89 @@ public class SavedPOIFragment extends Fragment {
             }
         });
 
-        //add new place button
-        Button button_add = (Button) myView.findViewById(R.id.add_poi);
-        button_add.setOnClickListener(new View.OnClickListener() {
-
-
-            @Override
-            public void onClick(View v) {
-                myPlaces.savePlace(new Place() {
-                    @Override
-                    public String getId() {
-                        return "ChIJLSHERe3PwoAR_jua-uyLzSA";
-                    }
-
-                    @Override
-                    public List<Integer> getPlaceTypes() {
-                        List<Integer> l = new ArrayList<Integer>();
-                        l.add(1);
-                        return l;
-                    }
-
-                    @Override
-                    public CharSequence getAddress() {
-                        return "5151 State University Dr., Los Angeles, CA 90032";
-                    }
-
-                    @Override
-                    public Locale getLocale() {
-                        return null;
-                    }
-
-                    @Override
-                    public CharSequence getName() {
-                        return "Cal State LA";
-                    }
-
-                    @Override
-                    public LatLng getLatLng() {
-                        return null;
-                    }
-
-                    @Override
-                    public LatLngBounds getViewport() {
-                        return null;
-                    }
-
-                    @Override
-                    public Uri getWebsiteUri() {
-                        return null;
-                    }
-
-                    @Override
-                    public CharSequence getPhoneNumber() {
-                        return null;
-                    }
-
-                    @Override
-                    public float getRating() {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getPriceLevel() {
-                        return 0;
-                    }
-
-                    @Override
-                    public CharSequence getAttributions() {
-                        return null;
-                    }
-
-                    @Override
-                    public Place freeze() {
-                        return null;
-                    }
-
-                    @Override
-                    public boolean isDataValid() {
-                        return true;
-                    }
-                });
-                refresh();
-            }
-        });
+//        //add new place button
+//        Button button_add = (Button) myView.findViewById(R.id.add_poi);
+//        button_add.setOnClickListener(new View.OnClickListener() {
+//
+//
+//            @Override
+//            public void onClick(View v) {
+//                myPlaces.savePlace(new Place() {
+//                    @Override
+//                    public String getId() {
+//                        return "ChIJLSHERe3PwoAR_jua-uyLzSA";
+//                    }
+//
+//                    @Override
+//                    public List<Integer> getPlaceTypes() {
+//                        List<Integer> l = new ArrayList<Integer>();
+//                        l.add(1);
+//                        return l;
+//                    }
+//
+//                    @Override
+//                    public CharSequence getAddress() {
+//                        return "5151 State University Dr., Los Angeles, CA 90032";
+//                    }
+//
+//                    @Override
+//                    public Locale getLocale() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public CharSequence getName() {
+//                        return "Cal State LA";
+//                    }
+//
+//                    @Override
+//                    public LatLng getLatLng() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public LatLngBounds getViewport() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public Uri getWebsiteUri() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public CharSequence getPhoneNumber() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public float getRating() {
+//                        return 0;
+//                    }
+//
+//                    @Override
+//                    public int getPriceLevel() {
+//                        return 0;
+//                    }
+//
+//                    @Override
+//                    public CharSequence getAttributions() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public Place freeze() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public boolean isDataValid() {
+//                        return true;
+//                    }
+//                });
+//                refresh();
+//            }
+//        });
 
         return myView;
     }
