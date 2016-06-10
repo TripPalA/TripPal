@@ -110,10 +110,6 @@ public class MainActivity extends AppCompatActivity
                             , new SavedPOIFragment())
                     .commit();
         } else if (id == R.id.preferences_layout) {
-            /*fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , new PrefFragment())
-                    .commit();*/
             startActivity(new Intent(this, SettingsActivity.class));
         }
 

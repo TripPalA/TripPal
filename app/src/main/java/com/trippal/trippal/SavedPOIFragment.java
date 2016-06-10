@@ -74,7 +74,7 @@ public class SavedPOIFragment extends Fragment {
 
                 Map<String, Object> place = (Map<String, Object>) listView.getItemAtPosition(position);
                 //TODO: open map for POI using google id
-                Toast.makeText(getActivity(), place.get("gid").toString(), Toast.LENGTH_LONG).show();
+              //  Toast.makeText(getActivity(), place.get("gid").toString(), Toast.LENGTH_LONG).show();
             }
         });
 

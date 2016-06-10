@@ -469,7 +469,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 @Override
                 public View getInfoContents(Marker marker) {
                     View v = getActivity().getLayoutInflater().inflate(R.layout.map_info_window, null);
-                    ImageView imageView = (ImageView) v.findViewById(R.id.info_image_iv);
+                   // ImageView imageView = (ImageView) v.findViewById(R.id.info_image_iv);
                     TextView tvTitle = (TextView) v.findViewById(R.id.info_title_tv);
                     TextView tvAddress = (TextView) v.findViewById(R.id.info_address_tv);
                     TextView tvRating = (TextView) v.findViewById(R.id.info_rating_tv);
