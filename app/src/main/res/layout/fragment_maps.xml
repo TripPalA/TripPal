@@ -124,8 +124,8 @@
             android:textAppearance="?android:attr/textColor"
             android:background="#99FFFFFF"
             android:textColor="@color/colorPrimary"
-            android:visibility="gone"
             android:textSize="@dimen/text_super_large"
+            android:visibility="invisible"
             />
     </LinearLayout>
 

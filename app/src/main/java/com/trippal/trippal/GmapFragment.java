@@ -91,13 +91,13 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private FloatingActionButton mute_fbutton;
     private FloatingActionButton save_fbutton;
     private TextView placeInfo_tv;
+    private TextView placeDuration_tv;
     private boolean mute;
     private int places_page;
     private List<Place> places;
     private MyPlace myPlace;
     private boolean animateToCurrentLocOnListen;
     private ListView autocomplete_lv;
-    private TextView tvduration;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -251,7 +251,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         dest_et = (EditText) view.findViewById(R.id.map_dest_et);
         placeInfo_tv = (TextView) view.findViewById(R.id.map_placeInfo_tv);
         autocomplete_lv = (ListView) view.findViewById(R.id.autocomplete_list_view);
-        tvduration = (TextView) view.findViewById(R.id.tv_duration);
+        placeDuration_tv = (TextView) view.findViewById(R.id.placeDuration_tv);
     }
 
     // toggle floating action buttons
@@ -261,11 +261,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             mute_fbutton.setVisibility(View.VISIBLE);
             save_fbutton.setVisibility(View.VISIBLE);
             placeInfo_tv.setVisibility(View.VISIBLE);
+            placeDuration_tv .setVisibility(View.VISIBLE);
+
         } else {
             next_fbutton.setVisibility(View.INVISIBLE);
             mute_fbutton.setVisibility(View.INVISIBLE);
             save_fbutton.setVisibility(View.INVISIBLE);
             placeInfo_tv.setVisibility(View.GONE);
+            placeDuration_tv .setVisibility(View.GONE);
         }
     }
 
