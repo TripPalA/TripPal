@@ -1,4 +1,7 @@
 # TripPal
+Demo Video  
+https://youtu.be/-qdeOyzbs0g
+
 
 ##Milestone Timeline
 Friday, May 13
