@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.location.places.Place;
@@ -30,7 +33,7 @@ import java.util.List;
          * URL contains JSON w/distance and duration given origin and destination
          * https://maps.googleapis.com/maps/api/directions/json?origin=-20.291825,57.448668&destination=-20.179724,57.613463&key=AIzaSyDDbYFy3AmllmFdsh3Gy_-4nQcXsVQW040
          */
-public class FetchDurationTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
+public class FetchDurationTask extends AsyncTask<String, Void, String> {
 
     public interface AsyncResponse {
         void processFinish(List<Place> markers);
@@ -43,14 +46,12 @@ public class FetchDurationTask extends AsyncTask<String, Void, List<HashMap<Stri
     private GoogleMap mMap;
 
 
-    public FetchDurationTask(Activity activity, GoogleMap mMap, AsyncResponse delegate) {
+    public FetchDurationTask(Activity activity) {
         this.activity = activity;
-        this.mMap = mMap;
-        this.delegate = delegate;
     }
 
     @Override
-    protected List<HashMap<String, String>> doInBackground(String... params) {
+    protected String doInBackground(String... params) {
 
         if (params.length == 0) {
             return null;
@@ -134,32 +135,43 @@ public class FetchDurationTask extends AsyncTask<String, Void, List<HashMap<Stri
         return null;
     }
 
-    private List<HashMap<String, String>> parseJsonPlace(String durationJsonStr) throws JSONException {
+    private String parseJsonPlace(String durationJsonStr) throws JSONException {
 
-        List<HashMap<String, String>> path = new ArrayList<HashMap<String, String>>();
+//        List<HashMap<String, String>> path = new ArrayList<HashMap<String, String>>();
 
-        // Get JSONObjects that are needed
-        JSONObject jsonObject = new JSONObject(durationJsonStr); // parse response into json object
-        JSONObject routeObject = jsonObject.getJSONObject("route"); // pull out the "route" object
-        JSONObject durationObject = jsonObject.getJSONObject("duration"); // pull out the "duration" object
-        String durationString = durationObject.getString("text"); //this should be the duration text value (20 hours 40 mins)
+//        // Get JSONObjects that are needed
+//        JSONObject jsonObject = new JSONObject(durationJsonStr); // parse response into json object
+//        JSONObject routeObject = jsonObject.getJSONObject("route"); // pull out the "route" object
+//        JSONObject durationObject = jsonObject.getJSONObject("duration"); // pull out the "duration" object
+//        String durationString = durationObject.getString("text"); //this should be the duration text value (20 hours 40 mins)
 
-        for(int i=0;i<routeObject.length();i++){
+        // testing sam's version:
+        JSONObject responseObj = new JSONObject(durationJsonStr);
+        JSONObject routes = responseObj.getJSONArray("routes").getJSONObject(0);
+        JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+        JSONObject duration = legs.getJSONObject("duration");
+        String durationString = duration.getString("text");
 
-            HashMap<String, String> hmDuration = new HashMap<String, String>();
-            hmDuration.put("duration", durationString);
 
-            /** Adding duration object to the path */
-            path.add(hmDuration);
-        }
+//        for(int i=0;i<routeObject.length();i++){
+//
+//            HashMap<String, String> hmDuration = new HashMap<String, String>();
+//            hmDuration.put("duration", durationString);
+//
+//            /** Adding duration object to the path */
+//            path.add(hmDuration);
+//        }
 
-        return path;
+        return durationString;
     }
 
     @Override
-    protected void onPostExecute(List<HashMap<String, String>> path) {
-        super.onPostExecute(path);
+    protected void onPostExecute(String durationString) {
+        super.onPostExecute(durationString);
 
+        TextView tv = (TextView) activity.findViewById(R.id.placeDuration_tv);
+        tv.setText(durationString);
+        tv.setVisibility(View.VISIBLE);
     }
 }
 

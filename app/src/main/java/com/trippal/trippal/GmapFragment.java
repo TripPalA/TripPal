@@ -49,12 +49,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -101,6 +97,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private MyPlace myPlace;
     private boolean animateToCurrentLocOnListen;
     private ListView autocomplete_lv;
+    private TextView tvduration;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -254,6 +251,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         dest_et = (EditText) view.findViewById(R.id.map_dest_et);
         placeInfo_tv = (TextView) view.findViewById(R.id.map_placeInfo_tv);
         autocomplete_lv = (ListView) view.findViewById(R.id.autocomplete_list_view);
+        tvduration = (TextView) view.findViewById(R.id.tv_duration);
     }
 
     // toggle floating action buttons
@@ -344,6 +342,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         String origin = originPos.latitude + "," + originPos.longitude;
         String dest = destPos.latitude + "," + destPos.longitude;
         dirTask.execute(origin, dest);
+
+        FetchDurationTask durationTask = new FetchDurationTask(getActivity());
+        durationTask.execute(origin, dest);
     }
 
     private void removeEverything() {
@@ -618,6 +619,15 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                             Toast.makeText(getActivity(), "Fetching places", Toast.LENGTH_SHORT);
                             lastCheckedPoint = location;
                         }
+
+                        // Update duration time estimate as you drive.
+                        // Use new current location to calculate new Duration time
+                        LatLng destPos = destMarker.getPosition();
+                        targetLoc = Utility.convertLatLngToLocation(destPos);
+                        String dest = destPos.latitude + "," + destPos.longitude;
+                        String locString = location.getLatitude() + "," + location.getLongitude();
+                        FetchDurationTask durationTask = new FetchDurationTask(getActivity());
+                        durationTask.execute(locString, dest);
                     }
                 }
             }

@@ -14,7 +14,14 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/map_dest_tv"
+        android:id="@+id/map_dest_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/map_dest_tv"
+        android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/tv_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/map_dest_tv"
@@ -122,6 +129,18 @@
         android:background="#30736F6E"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/map_dest_rl"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/placeDuration_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="fetching place info.."
+        android:background="#30736F6E"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/map_placeInfo_tv"
         android:visibility="gone"
         />
 
