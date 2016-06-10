@@ -3,34 +3,17 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_first_layout"
-            android:icon="@drawable/ic_menu_camera"
+            android:id="@+id/new_trip_layout"
+            android:icon="@drawable/ic_menu_send"
             android:title="New Trip" />
         <item
-            android:id="@+id/nav_second_layout"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Saved Trip" />
-        <item
-            android:id="@+id/nav_third_layout"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:id="@+id/saved_poi_layout"
+            android:icon="@drawable/ic_menu_send"
             android:title="Saved POI" />
         <item
-            android:id="@+id/nav_fourth_layout"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:id="@+id/preferences_layout"
+            android:icon="@drawable/ic_menu_send"
             android:title="Preferences" />
     </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
 
 </menu>

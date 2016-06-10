@@ -149,15 +149,15 @@ public class FetchDurationTask extends AsyncTask<String, Void, List<Place>> {
         JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
         JSONObject duration = legs.getJSONArray("duration").getJSONObject(1);
 
-        //TODO: HAAAAAAALP! 
+        //TODO: HAAAAAAALP!
         // Create list of places that contains duration information
         List<Place> list = new ArrayList<Place>();
-        for (int i = 0; i < myArray.length(); i++) {
-            String durationString;
-            JSONObject totalDuration = duration;
-            durationString = totalDuration.get("duration").toString();
-            list.add();
-        }
+//        for (int i = 0; i < myArray.length(); i++) {
+//            String durationString;
+//            JSONObject totalDuration = duration;
+//            durationString = totalDuration.get("duration").toString();
+//            list.add();
+//        }
 
 
         for (Place p : list) {
