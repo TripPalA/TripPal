@@ -270,6 +270,7 @@ public class FetchAutoCompleteTask extends AsyncTask<String, Void, List<Place>> 
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
+                GmapFragment.autocomplete_selected = false;
 
                 Map<String, Object> place = (Map<String, Object>) listView.getItemAtPosition(position);
 
@@ -281,7 +282,6 @@ public class FetchAutoCompleteTask extends AsyncTask<String, Void, List<Place>> 
                 textView.setText(place.get("address").toString());
 
                 //hide listview after selection
-                listView.destroyDrawingCache();
                 listView.setVisibility(View.GONE);
 
             }
