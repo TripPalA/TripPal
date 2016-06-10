@@ -152,7 +152,6 @@ public class FetchDurationTask extends AsyncTask<String, Void, String> {
         JSONObject duration = legs.getJSONObject("duration");
         String durationString = duration.getString("text");
 
-
 //        for(int i=0;i<routeObject.length();i++){
 //
 //            HashMap<String, String> hmDuration = new HashMap<String, String>();

@@ -99,6 +99,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
     private MyPlace myPlace;
     private boolean animateToCurrentLocOnListen;
     private ListView autocomplete_lv;
+    private int callCounter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -245,7 +246,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         findingPlace = false;
         animateToCurrentLocOnListen = true;
         init = false;
-        mute = true;
+        mute = false;
         places_page = 0;
         lines = new ArrayList<>();
         markers = new ArrayList<>();
@@ -407,18 +408,23 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 break;
             // on go button, toggle go button icon and invisibility of buttons
             case R.id.map_go_button:
-                if (!findingPlace && (targetLoc == null)) {
-                    findDirectionAndGo(view);
-                    findingPlace = true;
-                    go_button.setImageResource(R.drawable.ic_navigation_cancel);
-                    toggleVisibility(true);
-                } else {
-                    findingPlace = false;
-                    go_button.setImageResource(R.drawable.ic_maps_directions_car);
-                    removeEverything();
-                    toggleVisibility(false);
+                if (destMarker != null){
+                    if (!findingPlace) {
+                        findDirectionAndGo(view);
+                        findingPlace = true;
+                        go_button.setImageResource(R.drawable.ic_navigation_cancel);
+                        toggleVisibility(true);
+                    } else {
+                        findingPlace = true;
+//                        initMapElements(view);
+                        go_button.setImageResource(R.drawable.ic_maps_directions_car);
+                        removeEverything();
+                        toggleVisibility(false);
+                    }
+                    break;
+                }else{
+                    Toast.makeText(getActivity(), "Destination is empty", Toast.LENGTH_SHORT).show();
                 }
-                break;
 
             // get next page in places list
             case R.id.map_next_fbutton:
@@ -433,17 +439,17 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 if (!mute) {
                     Toast.makeText(getActivity(), "Muted", Toast.LENGTH_SHORT).show();
                     mute = true;
-                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_off);
+                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_down);
                 } else {
                     Toast.makeText(getActivity(), "Unmuted", Toast.LENGTH_SHORT).show();
                     mute = false;
-                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_down);
+                    mute_fbutton.setImageResource(R.drawable.ic_av_volume_off);
                 }
                 break;
 
             // save current place
             case R.id.map_save_fbutton:
-                if (targetLoc != null) {
+                if (targetLoc != null && places != null && places.size() > 0) {
                     Place placeToSave = places.get((places_page - 1) % places.size());
                     Log.v(LOG_TAG, "Current Place Page: " + places_page);
                     myPlace.savePlace(placeToSave);
@@ -516,6 +522,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 @Override
                 public void onMapClick(LatLng latLng) {
                     autocomplete_lv.setVisibility(View.GONE);
+                    animateToCurrentLocOnListen = false;
                 }
             });
 
@@ -609,9 +616,9 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                         findingPlace = false;
                         removeEverything();
                     } else {
-                        Toast.makeText(getActivity(),
-                                "Location changed: " + location.getLatitude() + ", " +
-                                        location.getLongitude(), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(),
+//                                "Location changed: " + location.getLatitude() + ", " +
+//                                        location.getLongitude(), Toast.LENGTH_SHORT).show();
 
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                         changeCurrentPosMarker(latLng);
@@ -631,14 +638,21 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                             lastCheckedPoint = location;
                         }
 
-                        // Update duration time estimate as you drive.
-                        // Use new current location to calculate new Duration time
+
                         LatLng destPos = destMarker.getPosition();
                         targetLoc = Utility.convertLatLngToLocation(destPos);
-                        String dest = destPos.latitude + "," + destPos.longitude;
-                        String locString = location.getLatitude() + "," + location.getLongitude();
-                        FetchDurationTask durationTask = new FetchDurationTask(getActivity());
-                        durationTask.execute(locString, dest);
+
+                        callCounter++;
+
+                        if (callCounter % 10 == 0){
+                            String dest = destPos.latitude + "," + destPos.longitude;
+                            String locString = location.getLatitude() + "," + location.getLongitude();
+                            FetchDurationTask durationTask = new FetchDurationTask(getActivity());
+                            durationTask.execute(locString, dest);
+                        }
+                        // Update duration time estimate as you drive.
+                        // Use new current location to calculate new Duration time
+
                     }
                 }
             }

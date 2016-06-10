@@ -91,7 +91,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:backgroundTint="@android:color/darker_gray"
-            android:src="@drawable/ic_av_volume_off"
+            android:src="@drawable/ic_av_volume_down"
             android:visibility="invisible"/>
 
         <android.support.design.widget.FloatingActionButton
@@ -120,22 +120,23 @@
             android:id="@+id/placeDuration_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/map_dest_tv"
             android:textAppearance="?android:attr/textColor"
             android:background="#99FFFFFF"
+            android:padding="5dp"
             android:textColor="@color/colorPrimary"
-            android:textSize="@dimen/text_super_large"
+            android:textSize="@dimen/text_large"
             android:visibility="invisible"
             />
     </LinearLayout>
 
     <TextView
         android:id="@+id/map_placeInfo_tv"
+        android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="fetching place info.."
-        android:background="#30736F6E"
+        android:background="#99FFFFFF"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/map_dest_rl"
         android:visibility="gone"
