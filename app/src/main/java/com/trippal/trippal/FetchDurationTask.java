@@ -73,7 +73,11 @@ public class FetchDurationTask extends AsyncTask<String, Void, List<Place>> {
             final String BASE_URL = "https://maps.googleapis.com/maps/api/directions/" + FORMAT + "?";
             final String ORIGIN_PARAM = "origin";
             final String DEST_PARAM = "destination";
-            final String API_PARAM = "key";
+//          final String API_PARAM = "key";
+
+            // My personal API for the TripPal project (TODO: Remove this later)
+            final String API_PARAM = "AIzaSyDDbYFy3AmllmFdsh3Gy_-4nQcXsVQW040";
+
 
             // Build URI using constructions
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
@@ -131,21 +135,30 @@ public class FetchDurationTask extends AsyncTask<String, Void, List<Place>> {
 
     private List<Place> parseJsonPlace(String durationJsonStr) throws JSONException {
 
-        // Name of the JSON object that needs to be extracted
-        final String ROUTES = "routes";
-        final String LEGS = "legs";
+//        // Name of the JSON object that needs to be extracted
+//        final String ROUTES = "routes";
+//        final String LEGS = "legs";
         final String DURATION = "duration";
+//
+//        JSONObject durationJson = new JSONObject(durationJsonStr);
+//        JSONArray durationArray = durationJson.getJSONArray(ROUTES);
 
+        // Testing out Sam's way of getting JSONObjects instead of mine above
         JSONObject durationJson = new JSONObject(durationJsonStr);
-        JSONArray durationArray = durationJson.getJSONArray(ROUTES);
+        JSONObject routes = durationJson.getJSONArray("routes").getJSONObject(0);
+        JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+        JSONObject duration = legs.getJSONArray("duration").getJSONObject(1);
 
+        //TODO: HAAAAAAALP! 
+        // Create list of places that contains duration information
         List<Place> list = new ArrayList<Place>();
-        for (int i = 0; i < durationArray.length(); i++) {
-            String totalDuration;
-            JSONObject o = durationArray.getJSONObject(i);
-            totalDuration = o.getString(DURATION);
-            //TODO: Need to finish logic in this method so it can properly go through the hierarchy and extract duration data
+        for (int i = 0; i < myArray.length(); i++) {
+            String durationString;
+            JSONObject totalDuration = duration;
+            durationString = totalDuration.get("duration").toString();
+            list.add();
         }
+
 
         for (Place p : list) {
             Log.v(LOG_TAG, "Duration: " + p);
@@ -156,7 +169,6 @@ public class FetchDurationTask extends AsyncTask<String, Void, List<Place>> {
     @Override
     protected void onPostExecute(List<Place> places) {
         super.onPostExecute(places);
-        Log.v(LOG_TAG, "PLACES FOUND: " + String.valueOf(places.size()));
         delegate.processFinish(places);
     }
 }
