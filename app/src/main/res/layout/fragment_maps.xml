@@ -55,7 +55,6 @@
             android:layout_alignParentRight="true"
             android:onClick="geoLocate"
             android:text="@string/dest_button_search" />
-
     </RelativeLayout>
 
     <fragment
@@ -117,7 +116,17 @@
             android:src="@drawable/ic_maps_directions_car"
             />
 
-
+        <TextView
+            android:id="@+id/placeDuration_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/map_dest_tv"
+            android:textAppearance="?android:attr/textColor"
+            android:background="#99FFFFFF"
+            android:textColor="@color/colorPrimary"
+            android:visibility="gone"
+            android:textSize="@dimen/text_super_large"
+            />
     </LinearLayout>
 
     <TextView
@@ -129,18 +138,6 @@
         android:background="#30736F6E"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/map_dest_rl"
-        android:visibility="gone"
-        />
-
-    <TextView
-        android:id="@+id/placeDuration_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="fetching place info.."
-        android:background="#30736F6E"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/map_placeInfo_tv"
         android:visibility="gone"
         />
 
