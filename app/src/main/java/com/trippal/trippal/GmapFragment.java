@@ -576,9 +576,10 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
                 if (findingPlace) {
 
-                    // if current distance to target is less than 10 meters, end the trip
-                    if (location.distanceTo(targetLoc) < 10) {
+                    // if current distance to target is less than 30 meters, end the trip
+                    if (location.distanceTo(targetLoc) < 30) {
                         findingPlace = false;
+                        Utility.tts(getActivity(), "You've arrived to the destination.");
                         removeEverything();
                     } else {
                         Toast.makeText(getActivity(),
