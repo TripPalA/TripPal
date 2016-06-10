@@ -173,15 +173,24 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         Utility.checkPermission(getActivity());
     }
 
+    public static boolean autocomplete_selected = false;
+
     public void setButtonListners(View view) {
 
         // reference:
         // http://stackoverflow.com/questions/12142021/how-can-i-do-something-0-5-second-after-text-changed-in-my-edittext
+        dest_et.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                autocomplete_selected = true;
+            }
+        });
         dest_et.addTextChangedListener(new TextWatcher() {
 
             private Timer timer = new Timer();
             private final int DELAY = 500; //milliseconds of delay for timer
             String placeQuery = "";
+
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -194,22 +203,24 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             @Override
             public void afterTextChanged(final Editable s) {
-                placeQuery = s.toString();
+                if (autocomplete_selected) {
+                    placeQuery = s.toString();
 
-                timer.cancel();
-                timer = new Timer();
+                    timer.cancel();
+                    timer = new Timer();
 
-                timer.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                FetchAutoCompleteTask autoComplete = new FetchAutoCompleteTask(getActivity());
-                                autoComplete.execute(placeQuery);
-                                //  Log.v(LOG_TAG, s.toString());
-                            }
-                        },
-                        DELAY
-                );
+                    timer.schedule(
+                            new TimerTask() {
+                                @Override
+                                public void run() {
+                                    FetchAutoCompleteTask autoComplete = new FetchAutoCompleteTask(getActivity());
+                                    autoComplete.execute(placeQuery);
+                                    //  Log.v(LOG_TAG, s.toString());
+                                }
+                            },
+                            DELAY
+                    );
+                }
             }
         });
 
@@ -458,6 +469,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                         tvRating.setText(snippets[1]);
                         if (snippets.length > 2 && snippets[2] != null && !snippets[2].isEmpty()) {
 //                            new DownloadImageTask(imageView).execute(snippets[2]);
+
                         }
                     }
 
