@@ -51,6 +51,7 @@ import com.google.android.gms.maps.model.Polyline;
 
 import java.io.IOException;
 
+import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -261,14 +262,14 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             mute_fbutton.setVisibility(View.VISIBLE);
             save_fbutton.setVisibility(View.VISIBLE);
             placeInfo_tv.setVisibility(View.VISIBLE);
-            placeDuration_tv .setVisibility(View.VISIBLE);
+            placeDuration_tv.setVisibility(View.VISIBLE);
 
         } else {
             next_fbutton.setVisibility(View.INVISIBLE);
             mute_fbutton.setVisibility(View.INVISIBLE);
             save_fbutton.setVisibility(View.INVISIBLE);
             placeInfo_tv.setVisibility(View.GONE);
-            placeDuration_tv .setVisibility(View.GONE);
+            placeDuration_tv.setVisibility(View.GONE);
         }
     }
 
@@ -278,22 +279,24 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
         String searchString = dest_et.getText().toString();
 
-        Geocoder gc = new Geocoder(getActivity());
+        if (searchString != null) {
+            Geocoder gc = new Geocoder(getActivity());
 
-        // search place
-        List<Address> list = gc.getFromLocationName(searchString, 1);
+            // search place
+            List<Address> list = gc.getFromLocationName(searchString, 1);
 
-        if (list.size() > 0) {
-            Address address = list.get(0);
-            String locality = address.getLocality();
-            Toast.makeText(getActivity(), "Found: " + locality, Toast.LENGTH_SHORT).show();
+            if (list.size() > 0) {
+                Address address = list.get(0);
+                String locality = address.getLocality();
+                Toast.makeText(getActivity(), "Found: " + locality, Toast.LENGTH_SHORT).show();
 
-            double lat = address.getLatitude();
-            double lng = address.getLongitude();
+                double lat = address.getLatitude();
+                double lng = address.getLongitude();
 
-            addMarker(v, address, lat, lng);
+                addMarker(v, address, lat, lng);
 
-            gotoLocation(lat, lng, 15);
+                gotoLocation(lat, lng, 15);
+            }
         }
     }
 
@@ -336,27 +339,30 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
         // save current location and animate the camera
         Location currentLoc = showCurrentLocation(true);
+        if(destMarker != null) {
+            LatLng originPos = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
+            LatLng destPos = destMarker.getPosition();
 
-        LatLng originPos = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
-        LatLng destPos = destMarker.getPosition();
+            targetLoc = Utility.convertLatLngToLocation(destPos);
 
-        targetLoc = Utility.convertLatLngToLocation(destPos);
+            String origin = originPos.latitude + "," + originPos.longitude;
+            String dest = destPos.latitude + "," + destPos.longitude;
+            dirTask.execute(origin, dest);
 
-        String origin = originPos.latitude + "," + originPos.longitude;
-        String dest = destPos.latitude + "," + destPos.longitude;
-        dirTask.execute(origin, dest);
-
-        FetchDurationTask durationTask = new FetchDurationTask(getActivity());
-        durationTask.execute(origin, dest);
+            FetchDurationTask durationTask = new FetchDurationTask(getActivity());
+            durationTask.execute(origin, dest);
+        }
     }
 
     private void removeEverything() {
-        destMarker.remove();
-        destMarker = null;
-        targetLoc = null;
-        dest_et.setText("");
-        removeLines();
-        removeMarkers();
+        if (targetLoc != null) {
+            destMarker.remove();
+            destMarker = null;
+            targetLoc = null;
+            dest_et.setText("");
+            removeLines();
+            removeMarkers();
+        }
     }
 
     private void removeLines() {
@@ -401,7 +407,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
                 break;
             // on go button, toggle go button icon and invisibility of buttons
             case R.id.map_go_button:
-                if (!findingPlace) {
+                if (!findingPlace && (targetLoc == null)) {
                     findDirectionAndGo(view);
                     findingPlace = true;
                     go_button.setImageResource(R.drawable.ic_navigation_cancel);
@@ -437,11 +443,13 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
 
             // save current place
             case R.id.map_save_fbutton:
-                Place placeToSave = places.get((places_page - 1) % places.size());
-                Log.v(LOG_TAG, "Current Place Page: " + places_page);
-                myPlace.savePlace(placeToSave);
-                Toast.makeText(getActivity(), "Saving " + placeToSave.getName(), Toast.LENGTH_LONG).show();
-                break;
+                if (targetLoc != null) {
+                    Place placeToSave = places.get((places_page - 1) % places.size());
+                    Log.v(LOG_TAG, "Current Place Page: " + places_page);
+                    myPlace.savePlace(placeToSave);
+                    Toast.makeText(getActivity(), "Saving " + placeToSave.getName(), Toast.LENGTH_LONG).show();
+                    break;
+                }
         }
     }
 
@@ -594,7 +602,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
             @Override
             public void onLocationChanged(Location location) {
 
-                if (findingPlace) {
+                if (findingPlace && targetLoc != null) {
 
                     // if current distance to target is less than 10 meters, end the trip
                     if (location.distanceTo(targetLoc) < 10) {
