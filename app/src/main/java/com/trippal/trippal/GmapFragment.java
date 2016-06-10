@@ -608,7 +608,7 @@ public class GmapFragment extends Fragment implements View.OnClickListener, OnMa
         };
 
         LocationRequest request = LocationRequest.create();
-        request.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+        request.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         // updates the map every 5 seconds, and must move more than 20 meters
         request.setInterval(5000);
